@@ -115,7 +115,6 @@ async function handleSendMessage() {
 
     // Disable send button
     sendBtn.disabled = true;
-    sendBtn.textContent = 'Sending...';
 
     try {
         const response = await sendApiRequest(prompt, apiKey);
@@ -124,7 +123,6 @@ async function handleSendMessage() {
         addMessage(`Error: ${error.message}`, 'error');
     } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = 'Send';
     }
 }
 

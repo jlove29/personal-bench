@@ -20,6 +20,26 @@ body {
 header {
     padding: 30px;
     text-align: center;
+    position: relative;
+}
+
+.back-button {
+    position: absolute;
+    left: 30px;
+    top: 30px;
+    padding: 8px 16px;
+    background: #f8f9fa;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+}
+
+.back-button:hover {
+    background: black;
+    color: white;
 }
 
 header h1 {
@@ -65,7 +85,7 @@ header h1 {
 .form-group select:focus,
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: black;
 }
 
 .form-group small {
@@ -143,10 +163,9 @@ header h1 {
 
 .input-container {
     padding: 20px 30px;
-    background: #f8f9fa;
-    border-top: 1px solid #e9ecef;
     display: flex;
     gap: 12px;
+    align-items: center;
 }
 
 #prompt-input {
@@ -167,7 +186,7 @@ header h1 {
 
 .btn-primary {
     padding: 12px 32px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: black;
     color: white;
     border: none;
     border-radius: 8px;
@@ -190,6 +209,32 @@ header h1 {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+}
+
+.send-arrow {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: lightblue;
+    flex-shrink: 0;
+}
+
+.send-arrow svg {
+    width: 20px;
+    height: 20px;
+}
+
+.send-arrow:hover {
+    background: lightblue;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.5);
+}
+
+.send-arrow:active {
+    transform: scale(0.95);
 }
 
 .settings-panel {

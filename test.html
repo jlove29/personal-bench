@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM API Tester</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-button">← Back to Home</a>
+            <h1>LLM API Tester</h1>
+            <p class="subtitle">Test and compare different language models</p>
+        </header>
+
+        <div class="config-panel">
+            <div class="form-group">
+                <label for="api-select">API Provider</label>
+                <select id="api-select">
+                    <option value="openai">OpenAI</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="claude">Anthropic Claude</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model-input">Model</label>
+                <input type="text" id="model-input" placeholder="Enter model name">
+            </div>
+
+            <div class="form-group">
+                <label for="api-key">API Key</label>
+                <input type="password" id="api-key" placeholder="Enter your API key">
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+            </div>
+
+            <div class="input-container">
+                <textarea id="prompt-input" placeholder="Enter your prompt here..." rows="3"></textarea>
+                <button id="send-btn" class="btn-primary send-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L12 20M12 2L6 8M12 2L18 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

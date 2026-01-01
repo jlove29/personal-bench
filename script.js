@@ -246,8 +246,21 @@ async function initializeSheets() {
         // Check if already authorized from index page
         const authStatus = sessionStorage.getItem('sheetsAuthorized');
         if (authStatus === 'true' && sheetsAPI.accessToken) {
-            // Get the sheet ID
-            await sheetsAPI.getUserSheetId();
+            try {
+                // Get the sheet ID
+                await sheetsAPI.getUserSheetId();
+            } catch (error) {
+                // Token might be expired, try to re-authorize
+                if (error.status === 401 || error.result?.error?.code === 401) {
+                    console.log('Token expired, re-authorizing...');
+                    await sheetsAPI.authorize();
+                    await sheetsAPI.getUserSheetId();
+                    sessionStorage.setItem('sheetsAuthorized', 'true');
+                } else {
+                    throw error;
+                }
+            }
+            
             isAuthorizedForSheets = true;
             sheetsStatus.style.display = 'block';
             

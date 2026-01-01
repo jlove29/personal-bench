@@ -23,7 +23,21 @@ async function initializePage() {
         }
         
         console.log('Already authorized, loading sheet...');
-        await sheetsAPI.getUserSheetId();
+        
+        try {
+            await sheetsAPI.getUserSheetId();
+        } catch (error) {
+            // Token might be expired, try to re-authorize
+            if (error.status === 401 || error.result?.error?.code === 401) {
+                console.log('Token expired, re-authorizing...');
+                await sheetsAPI.authorize();
+                await sheetsAPI.getUserSheetId();
+                sessionStorage.setItem('sheetsAuthorized', 'true');
+            } else {
+                throw error;
+            }
+        }
+        
         isAuthorized = true;
         
         // Show main content
@@ -60,7 +74,23 @@ async function loadPrompts() {
         renderPrompts();
     } catch (error) {
         console.error('Failed to load prompts:', error);
-        showError('Failed to load prompts from Google Sheets.');
+        
+        // If 401 error, try to re-authorize
+        if (error.status === 401 || error.result?.error?.code === 401) {
+            console.log('Token expired while loading prompts, re-authorizing...');
+            try {
+                await sheetsAPI.authorize();
+                sessionStorage.setItem('sheetsAuthorized', 'true');
+                // Retry loading prompts
+                prompts = await sheetsAPI.getPrompts();
+                renderPrompts();
+            } catch (retryError) {
+                console.error('Failed to re-authorize and load prompts:', retryError);
+                showError('Failed to load prompts from Google Sheets.');
+            }
+        } else {
+            showError('Failed to load prompts from Google Sheets.');
+        }
     }
     
     showLoading(false);

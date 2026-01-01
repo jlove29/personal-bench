@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM API Tester</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>LLM API Tester</h1>
+            <p class="subtitle">Test and compare different language models</p>
+        </header>
+
+        <div class="config-panel">
+            <div class="form-group">
+                <label for="api-select">API Provider</label>
+                <select id="api-select">
+                    <option value="openai">OpenAI</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="claude">Anthropic Claude</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model-input">Model</label>
+                <input type="text" id="model-input" placeholder="Enter model name">
+            </div>
+
+            <div class="form-group">
+                <label for="api-key">API Key</label>
+                <input type="password" id="api-key" placeholder="Enter your API key">
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+            </div>
+
+            <div class="input-container">
+                <textarea id="prompt-input" placeholder="Enter your prompt here..." rows="3"></textarea>
+                <button id="send-btn" class="btn-primary">Send</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

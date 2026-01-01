@@ -20,7 +20,7 @@ class SheetsAPI {
                     await gapi.client.init({
                         discoveryDocs: CONFIG.DISCOVERY_DOCS,
                     });
-                    
+
                     // Restore access token from sessionStorage if available
                     const storedToken = sessionStorage.getItem('googleAccessToken');
                     if (storedToken) {
@@ -28,7 +28,7 @@ class SheetsAPI {
                         gapi.client.setToken({ access_token: this.accessToken });
                         console.log('Restored access token from sessionStorage');
                     }
-                    
+
                     this.gapiLoaded = true;
                     if (this.gisLoaded) resolve();
                 });
@@ -100,7 +100,7 @@ class SheetsAPI {
                     }]
                 }]
             });
-            
+
             this.sheetId = response.result.spreadsheetId;
             return this.sheetId;
         } catch (error) {
@@ -117,7 +117,7 @@ class SheetsAPI {
             this.sheetId = storedSheetId;
             return storedSheetId;
         }
-        
+
         // Create a new sheet
         const newSheetId = await this.createSpreadsheet();
         localStorage.setItem('personalBenchSheetId', newSheetId);
@@ -199,7 +199,7 @@ class SheetsAPI {
                 spreadsheetId: this.sheetId,
                 range: `${CONFIG.SHEET_NAME}!D${rowId}`,
             });
-            
+
             let responses = [];
             if (promptsResponse.result.values && promptsResponse.result.values[0] && promptsResponse.result.values[0][0]) {
                 try {
@@ -209,7 +209,7 @@ class SheetsAPI {
                     responses = [];
                 }
             }
-            
+
             // Add new response
             responses.push({
                 modelName,
@@ -217,7 +217,7 @@ class SheetsAPI {
                 timestamp: new Date().toISOString(),
                 metadata
             });
-            
+
             // Update the cell
             const updateResponse = await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: this.sheetId,
@@ -242,7 +242,7 @@ class SheetsAPI {
                 spreadsheetId: this.sheetId,
                 range: `${CONFIG.SHEET_NAME}!D${rowId}`,
             });
-            
+
             let responses = [];
             if (promptsResponse.result.values && promptsResponse.result.values[0] && promptsResponse.result.values[0][0]) {
                 try {
@@ -252,10 +252,10 @@ class SheetsAPI {
                     return;
                 }
             }
-            
+
             // Remove the response at the specified index
             responses.splice(responseIndex, 1);
-            
+
             // Update the cell
             const updateResponse = await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: this.sheetId,

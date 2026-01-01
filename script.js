@@ -1,5 +1,4 @@
 
-
 // API endpoints
 const API_ENDPOINTS = {
     openai: 'https://api.openai.com/v1/chat/completions',
@@ -82,8 +81,6 @@ function loadModel() {
     modelInput.value = savedModel;
 }
 
-
-
 // Handle Enter key in prompt input
 function handleKeyPress(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -96,11 +93,9 @@ function handleKeyPress(e) {
 function addMessage(content, type) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
-
     const p = document.createElement('p');
     p.textContent = content;
     messageDiv.appendChild(p);
-
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
@@ -125,7 +120,7 @@ async function handleSendMessage() {
 
     // Add user message
     addMessage(prompt, 'user');
-    
+
     // Clear input box
     promptInput.value = '';
 
@@ -136,8 +131,6 @@ async function handleSendMessage() {
         const response = await sendApiRequest(prompt, apiKey);
         lastResponse = response;
         addMessage(response, 'assistant');
-        
-        // Show save to tracker button if authorized
         if (isAuthorizedForSheets) {
             saveToTrackerBtn.style.display = 'inline-block';
         }
@@ -242,15 +235,11 @@ async function sendClaudeRequest(prompt, apiKey, model) {
 async function initializeSheets() {
     try {
         await sheetsAPI.init();
-        
-        // Check if already authorized from index page
         const authStatus = sessionStorage.getItem('sheetsAuthorized');
         if (authStatus === 'true' && sheetsAPI.accessToken) {
             try {
-                // Get the sheet ID
                 await sheetsAPI.getUserSheetId();
             } catch (error) {
-                // Token might be expired, try to re-authorize
                 if (error.status === 401 || error.result?.error?.code === 401) {
                     console.log('Token expired, re-authorizing...');
                     await sheetsAPI.authorize();
@@ -260,11 +249,8 @@ async function initializeSheets() {
                     throw error;
                 }
             }
-            
             isAuthorizedForSheets = true;
             sheetsStatus.style.display = 'block';
-            
-            // Load prompts
             await loadPrompts();
         }
     } catch (error) {
@@ -276,8 +262,6 @@ async function initializeSheets() {
 async function loadPrompts() {
     try {
         savedPrompts = await sheetsAPI.getPrompts();
-        
-        // Populate the dropdown
         promptSelect.innerHTML = '<option value="">-- Select a saved prompt --</option>';
         savedPrompts.forEach(prompt => {
             const option = document.createElement('option');
@@ -290,18 +274,14 @@ async function loadPrompts() {
     }
 }
 
-// Handle prompt selection
 function handlePromptSelect() {
-    // Clear chat history when changing prompts
     messagesContainer.innerHTML = '';
-    
     const selectedId = parseInt(promptSelect.value);
     if (!selectedId) {
-        // If no prompt selected, just clear the input
         promptInput.value = '';
         return;
     }
-    
+
     const prompt = savedPrompts.find(p => p.id === selectedId);
     if (prompt) {
         promptInput.value = prompt.content;
@@ -309,52 +289,38 @@ function handlePromptSelect() {
     }
 }
 
-// Save prompt and response to tracker
 async function handleSaveToTracker() {
     if (!lastPrompt || !lastResponse) {
         addMessage('No prompt/response to save', 'error');
         return;
     }
-    
+
     try {
         saveToTrackerBtn.disabled = true;
-        
-        // Check if this is a new prompt or updating an existing one
         const selectedId = parseInt(promptSelect.value);
         let promptId;
-        
         if (selectedId) {
-            // Using an existing prompt, just add the response
             promptId = selectedId;
         } else {
-            // Create a new prompt - ask for title and category
             const title = prompt('Enter a title for this prompt:', lastPrompt.substring(0, 50));
             if (!title) {
                 saveToTrackerBtn.disabled = false;
                 return;
             }
-            
             const category = prompt('Enter a category (optional):', '');
-            
             await sheetsAPI.addPrompt(title, lastPrompt, category);
             await loadPrompts();
-            
-            // Get the newly created prompt ID (it will be the last one)
             const prompts = await sheetsAPI.getPrompts();
             promptId = prompts[prompts.length - 1].id;
         }
-        
-        // Add the model response
         const modelName = `${apiSelect.value} - ${modelInput.value}`;
         await sheetsAPI.addModelResponse(promptId, modelName, lastResponse, {
             provider: apiSelect.value,
             model: modelInput.value
         });
-        
         addMessage('✓ Saved to Prompt Tracker!', 'success');
         saveToTrackerBtn.style.display = 'none';
-        
-        // Reload prompts to show the updated data
+
         await loadPrompts();
     } catch (error) {
         console.error('Failed to save to tracker:', error);

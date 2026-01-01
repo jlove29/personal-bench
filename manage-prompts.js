@@ -6,11 +6,11 @@ let isAuthorized = false;
 // Initialize the page
 async function initializePage() {
     showLoading(true);
-    
+
     try {
         await sheetsAPI.init();
         console.log('Google Sheets API loaded');
-        
+
         // Check if we have a valid access token from the index page
         const authStatus = sessionStorage.getItem('sheetsAuthorized');
         if (authStatus !== 'true' || !sheetsAPI.accessToken) {
@@ -21,9 +21,9 @@ async function initializePage() {
             }, 2000);
             return;
         }
-        
+
         console.log('Already authorized, loading sheet...');
-        
+
         try {
             await sheetsAPI.getUserSheetId();
         } catch (error) {
@@ -37,26 +37,26 @@ async function initializePage() {
                 throw error;
             }
         }
-        
+
         isAuthorized = true;
-        
+
         // Show main content
         document.getElementById('authorize-btn').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        
+
         // Show link to the Google Sheet
         const sheetUrl = sheetsAPI.getSheetUrl();
         const sheetLinkDiv = document.getElementById('sheet-link');
         sheetLinkDiv.innerHTML = `<a href="${sheetUrl}" target="_blank" class="sheet-link">📊 Open in Google Sheets</a>`;
         sheetLinkDiv.style.display = 'block';
-        
+
         // Load prompts
         await loadPrompts();
     } catch (error) {
         console.error('Failed to initialize:', error);
         showError('Failed to initialize Google Sheets API. Please check your configuration.');
     }
-    
+
     showLoading(false);
 }
 
@@ -68,13 +68,13 @@ async function authorizeUser() {
 // Load all prompts from the sheet
 async function loadPrompts() {
     showLoading(true);
-    
+
     try {
         prompts = await sheetsAPI.getPrompts();
         renderPrompts();
     } catch (error) {
         console.error('Failed to load prompts:', error);
-        
+
         // If 401 error, try to re-authorize
         if (error.status === 401 || error.result?.error?.code === 401) {
             console.log('Token expired while loading prompts, re-authorizing...');
@@ -92,21 +92,21 @@ async function loadPrompts() {
             showError('Failed to load prompts from Google Sheets.');
         }
     }
-    
+
     showLoading(false);
 }
 
 // Render prompts to the page
 function renderPrompts() {
     const container = document.getElementById('prompts-container');
-    
+
     if (prompts.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No prompts yet. Click "Add New Prompt" to create one.</p>';
         return;
     }
-    
+
     container.innerHTML = prompts.map(prompt => {
-        const responsesHtml = prompt.responses && prompt.responses.length > 0 
+        const responsesHtml = prompt.responses && prompt.responses.length > 0
             ? `
                 <div class="model-responses">
                     <h4>Model Responses (${prompt.responses.length}):</h4>
@@ -120,9 +120,9 @@ function renderPrompts() {
                             <div class="response-content">${escapeHtml(resp.response)}</div>
                             ${resp.metadata && Object.keys(resp.metadata).length > 0 ? `
                                 <div class="response-metadata">
-                                    ${Object.entries(resp.metadata).map(([key, value]) => 
-                                        `<span class="metadata-tag">${escapeHtml(key)}: ${escapeHtml(String(value))}</span>`
-                                    ).join('')}
+                                    ${Object.entries(resp.metadata).map(([key, value]) =>
+                `<span class="metadata-tag">${escapeHtml(key)}: ${escapeHtml(String(value))}</span>`
+            ).join('')}
                                 </div>
                             ` : ''}
                         </div>
@@ -130,7 +130,7 @@ function renderPrompts() {
                 </div>
             `
             : '<p class="no-responses">No model responses yet.</p>';
-        
+
         return `
             <div class="prompt-item" data-id="${prompt.id}">
                 <h3>${escapeHtml(prompt.title)}</h3>
@@ -154,7 +154,7 @@ function showPromptModal(promptId = null) {
     const titleInput = document.getElementById('prompt-title');
     const contentInput = document.getElementById('prompt-content');
     const categoryInput = document.getElementById('prompt-category');
-    
+
     if (promptId) {
         // Edit mode
         const prompt = prompts.find(p => p.id === promptId);
@@ -171,7 +171,7 @@ function showPromptModal(promptId = null) {
         categoryInput.value = '';
         delete modal.dataset.editId;
     }
-    
+
     modal.style.display = 'flex';
 }
 
@@ -186,14 +186,14 @@ async function savePrompt() {
     const title = document.getElementById('prompt-title').value.trim();
     const content = document.getElementById('prompt-content').value.trim();
     const category = document.getElementById('prompt-category').value.trim();
-    
+
     if (!title || !content) {
         alert('Please fill in both title and content.');
         return;
     }
-    
+
     showLoading(true);
-    
+
     try {
         if (modal.dataset.editId) {
             // Update existing prompt
@@ -202,14 +202,14 @@ async function savePrompt() {
             // Add new prompt
             await sheetsAPI.addPrompt(title, content, category);
         }
-        
+
         hidePromptModal();
         await loadPrompts();
     } catch (error) {
         console.error('Failed to save prompt:', error);
         showError('Failed to save prompt. Please try again.');
     }
-    
+
     showLoading(false);
 }
 
@@ -223,9 +223,9 @@ async function deletePrompt(promptId) {
     if (!confirm('Are you sure you want to delete this prompt?')) {
         return;
     }
-    
+
     showLoading(true);
-    
+
     try {
         await sheetsAPI.deletePrompt(promptId);
         await loadPrompts();
@@ -233,7 +233,7 @@ async function deletePrompt(promptId) {
         console.error('Failed to delete prompt:', error);
         showError('Failed to delete prompt. Please try again.');
     }
-    
+
     showLoading(false);
 }
 
@@ -241,15 +241,14 @@ async function deletePrompt(promptId) {
 function showResponseModal(promptId) {
     const modal = document.getElementById('response-modal');
     const prompt = prompts.find(p => p.id === promptId);
-    
+
     if (!prompt) return;
-    
+
     document.getElementById('response-prompt-title').textContent = prompt.title;
     document.getElementById('response-model-name').value = '';
     document.getElementById('response-content').value = '';
     document.getElementById('response-metadata').value = '';
     modal.dataset.promptId = promptId;
-    
     modal.style.display = 'flex';
 }
 
@@ -265,12 +264,12 @@ async function saveResponse() {
     const modelName = document.getElementById('response-model-name').value.trim();
     const responseContent = document.getElementById('response-content').value.trim();
     const metadataStr = document.getElementById('response-metadata').value.trim();
-    
+
     if (!modelName || !responseContent) {
         alert('Please fill in both model name and response.');
         return;
     }
-    
+
     let metadata = {};
     if (metadataStr) {
         try {
@@ -280,9 +279,9 @@ async function saveResponse() {
             return;
         }
     }
-    
+
     showLoading(true);
-    
+
     try {
         await sheetsAPI.addModelResponse(promptId, modelName, responseContent, metadata);
         hideResponseModal();
@@ -291,7 +290,7 @@ async function saveResponse() {
         console.error('Failed to save response:', error);
         showError('Failed to save response. Please try again.');
     }
-    
+
     showLoading(false);
 }
 
@@ -300,9 +299,9 @@ async function deleteResponse(promptId, responseIndex) {
     if (!confirm('Are you sure you want to delete this response?')) {
         return;
     }
-    
+
     showLoading(true);
-    
+
     try {
         await sheetsAPI.deleteModelResponse(promptId, responseIndex);
         await loadPrompts();
@@ -310,7 +309,7 @@ async function deleteResponse(promptId, responseIndex) {
         console.error('Failed to delete response:', error);
         showError('Failed to delete response. Please try again.');
     }
-    
+
     showLoading(false);
 }
 

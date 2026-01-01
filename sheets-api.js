@@ -20,6 +20,15 @@ class SheetsAPI {
                     await gapi.client.init({
                         discoveryDocs: CONFIG.DISCOVERY_DOCS,
                     });
+                    
+                    // Restore access token from sessionStorage if available
+                    const storedToken = sessionStorage.getItem('googleAccessToken');
+                    if (storedToken) {
+                        this.accessToken = storedToken;
+                        gapi.client.setToken({ access_token: this.accessToken });
+                        console.log('Restored access token from sessionStorage');
+                    }
+                    
                     this.gapiLoaded = true;
                     if (this.gisLoaded) resolve();
                 });
@@ -58,6 +67,8 @@ class SheetsAPI {
                 }
                 this.accessToken = response.access_token;
                 gapi.client.setToken({ access_token: this.accessToken });
+                // Store token in sessionStorage for use across pages
+                sessionStorage.setItem('googleAccessToken', this.accessToken);
                 resolve();
             };
             this.tokenClient.requestAccessToken({ prompt: 'consent' });
@@ -82,7 +93,8 @@ class SheetsAPI {
                             values: [
                                 { userEnteredValue: { stringValue: 'Title' } },
                                 { userEnteredValue: { stringValue: 'Content' } },
-                                { userEnteredValue: { stringValue: 'Category' } }
+                                { userEnteredValue: { stringValue: 'Category' } },
+                                { userEnteredValue: { stringValue: 'ModelResponses' } }
                             ]
                         }]
                     }]
@@ -117,16 +129,26 @@ class SheetsAPI {
         try {
             const response = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A2:C`, // Skip header row
+                range: `${CONFIG.SHEET_NAME}!A2:D`, // Skip header row, include ModelResponses
             });
 
             const rows = response.result.values || [];
-            return rows.map((row, index) => ({
-                id: index + 2, // Row number (starting from 2 because of header)
-                title: row[0] || '',
-                content: row[1] || '',
-                category: row[2] || ''
-            }));
+            return rows.map((row, index) => {
+                let responses = [];
+                try {
+                    responses = row[3] ? JSON.parse(row[3]) : [];
+                } catch (e) {
+                    console.error('Error parsing responses for row', index + 2, e);
+                    responses = [];
+                }
+                return {
+                    id: index + 2, // Row number (starting from 2 because of header)
+                    title: row[0] || '',
+                    content: row[1] || '',
+                    category: row[2] || '',
+                    responses: responses
+                };
+            });
         } catch (error) {
             console.error('Error reading prompts:', error);
             throw error;
@@ -138,10 +160,10 @@ class SheetsAPI {
         try {
             const response = await gapi.client.sheets.spreadsheets.values.append({
                 spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A:C`,
+                range: `${CONFIG.SHEET_NAME}!A:D`,
                 valueInputOption: 'RAW',
                 resource: {
-                    values: [[title, content, category]]
+                    values: [[title, content, category, '[]']]
                 }
             });
             return response.result;
@@ -169,12 +191,93 @@ class SheetsAPI {
         }
     }
 
+    // Add a model response to a prompt
+    async addModelResponse(rowId, modelName, response, metadata = {}) {
+        try {
+            // Get current responses
+            const promptsResponse = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: this.sheetId,
+                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
+            });
+            
+            let responses = [];
+            if (promptsResponse.result.values && promptsResponse.result.values[0] && promptsResponse.result.values[0][0]) {
+                try {
+                    responses = JSON.parse(promptsResponse.result.values[0][0]);
+                } catch (e) {
+                    console.error('Error parsing existing responses:', e);
+                    responses = [];
+                }
+            }
+            
+            // Add new response
+            responses.push({
+                modelName,
+                response,
+                timestamp: new Date().toISOString(),
+                metadata
+            });
+            
+            // Update the cell
+            const updateResponse = await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: this.sheetId,
+                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [[JSON.stringify(responses)]]
+                }
+            });
+            return updateResponse.result;
+        } catch (error) {
+            console.error('Error adding model response:', error);
+            throw error;
+        }
+    }
+
+    // Delete a specific model response
+    async deleteModelResponse(rowId, responseIndex) {
+        try {
+            // Get current responses
+            const promptsResponse = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: this.sheetId,
+                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
+            });
+            
+            let responses = [];
+            if (promptsResponse.result.values && promptsResponse.result.values[0] && promptsResponse.result.values[0][0]) {
+                try {
+                    responses = JSON.parse(promptsResponse.result.values[0][0]);
+                } catch (e) {
+                    console.error('Error parsing existing responses:', e);
+                    return;
+                }
+            }
+            
+            // Remove the response at the specified index
+            responses.splice(responseIndex, 1);
+            
+            // Update the cell
+            const updateResponse = await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: this.sheetId,
+                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [[JSON.stringify(responses)]]
+                }
+            });
+            return updateResponse.result;
+        } catch (error) {
+            console.error('Error deleting model response:', error);
+            throw error;
+        }
+    }
+
     // Delete a prompt (by clearing the row)
     async deletePrompt(rowId) {
         try {
             const response = await gapi.client.sheets.spreadsheets.values.clear({
                 spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A${rowId}:C${rowId}`,
+                range: `${CONFIG.SHEET_NAME}!A${rowId}:D${rowId}`,
             });
             return response.result;
         } catch (error) {

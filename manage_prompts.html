@@ -267,6 +267,87 @@
         .sheet-link:hover {
             background: #2d8e47;
         }
+
+        .model-responses {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .model-responses h4 {
+            margin: 0 0 15px 0;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .response-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .response-time {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .response-content {
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .response-metadata {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .metadata-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #fff3cd;
+            color: #856404;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .btn-icon:hover {
+            opacity: 1;
+        }
+
+        .no-responses {
+            color: #999;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: #28a745;
+            color: white;
+        }
     </style>
 </head>
 
@@ -324,6 +405,35 @@
             <div class="modal-actions">
                 <button class="btn btn-cancel" onclick="hidePromptModal()">Cancel</button>
                 <button class="btn btn-save" onclick="savePrompt()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Model Response Modal -->
+    <div id="response-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add Model Response</h2>
+            <p style="color: #666; margin-bottom: 20px;">For prompt: <strong id="response-prompt-title"></strong></p>
+            
+            <div class="form-group">
+                <label for="response-model-name">Model Name</label>
+                <input type="text" id="response-model-name" placeholder="e.g., GPT-4, Claude 3.5, Gemini Pro">
+            </div>
+            
+            <div class="form-group">
+                <label for="response-content">Response</label>
+                <textarea id="response-content" placeholder="Enter the model's response" style="min-height: 150px;"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="response-metadata">Metadata (optional JSON)</label>
+                <textarea id="response-metadata" placeholder='{"temperature": 0.7, "tokens": 150}' style="min-height: 60px; font-family: monospace;"></textarea>
+                <small style="color: #666;">Optional: Add metadata as JSON (e.g., temperature, token count, etc.)</small>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="hideResponseModal()">Cancel</button>
+                <button class="btn btn-save" onclick="saveResponse()">Save Response</button>
             </div>
         </div>
     </div>

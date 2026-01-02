@@ -162,19 +162,18 @@ async function handleSendMessage() {
     // Disable send button
     sendBtn.disabled = true;
 
-    // Add loading indicator
-    const loadingIndicator = addLoadingIndicator();
+    // Create assistant message element for streaming with placeholder
+    const assistantMessage = addMessage('...', 'assistant');
 
     try {
-        const response = await sendApiRequest(prompt, apiKey);
+        const response = await sendApiRequest(prompt, apiKey, assistantMessage);
         lastResponse = response;
-        removeLoadingIndicator(loadingIndicator);
-        addMessage(response, 'assistant');
         if (isAuthorizedForSheets) {
             saveToTrackerBtn.style.display = 'inline-block';
         }
     } catch (error) {
-        removeLoadingIndicator(loadingIndicator);
+        // Remove the empty assistant message and show error
+        assistantMessage.remove();
         addMessage(`Error: ${error.message}`, 'error');
     } finally {
         sendBtn.disabled = false;
@@ -182,24 +181,24 @@ async function handleSendMessage() {
 }
 
 // Send API request based on selected provider
-async function sendApiRequest(prompt, apiKey) {
+async function sendApiRequest(prompt, apiKey, messageElement) {
     const selectedApi = apiSelect.value;
     const selectedModel = modelInput.value.trim();
 
     switch (selectedApi) {
         case 'openai':
-            return await sendOpenAIRequest(prompt, apiKey, selectedModel);
+            return await sendOpenAIRequest(prompt, apiKey, selectedModel, messageElement);
         case 'gemini':
-            return await sendGeminiRequest(prompt, apiKey, selectedModel);
+            return await sendGeminiRequest(prompt, apiKey, selectedModel, messageElement);
         case 'claude':
-            return await sendClaudeRequest(prompt, apiKey, selectedModel);
+            return await sendClaudeRequest(prompt, apiKey, selectedModel, messageElement);
         default:
             throw new Error('Unknown API provider');
     }
 }
 
-// OpenAI API request
-async function sendOpenAIRequest(prompt, apiKey, model) {
+// OpenAI API request with streaming
+async function sendOpenAIRequest(prompt, apiKey, model, messageElement) {
     const response = await fetch(API_ENDPOINTS.openai, {
         method: 'POST',
         headers: {
@@ -208,50 +207,104 @@ async function sendOpenAIRequest(prompt, apiKey, model) {
         },
         body: JSON.stringify({
             model: model,
-            messages: [{ role: 'user', content: prompt }]
+            messages: [{ role: 'user', content: prompt }],
+            stream: true
         })
     });
 
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'OpenAI API request failed');
+        throw new Error(`OpenAI API error: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullContent = '';
+    const p = messageElement.querySelector('p');
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+            if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+
+                try {
+                    const parsed = JSON.parse(data);
+                    const content = parsed.choices[0]?.delta?.content;
+                    if (content) {
+                        fullContent += content;
+                        p.textContent = fullContent;
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
+                } catch (e) {
+                    // Skip invalid JSON
+                }
+            }
+        }
+    }
+
+    return fullContent;
 }
 
-// Gemini API request
-async function sendGeminiRequest(prompt, apiKey, model) {
+// Gemini API request with streaming
+async function sendGeminiRequest(prompt, apiKey, model, messageElement) {
     // Dynamically import the @google/genai SDK
     const { GoogleGenAI } = await import('@google/genai');
 
     // Initialize the SDK with the API key
     const ai = new GoogleGenAI({ apiKey });
 
-    // Generate content using the SDK
-    const response = await ai.models.generateContent({
+    // Generate content using the SDK with streaming
+    const response = await ai.models.generateContentStream({
         model: model,
         contents: prompt
     });
 
-    return response.text;
+    let fullContent = '';
+    const p = messageElement.querySelector('p');
+
+    for await (const chunk of response) {
+        const text = chunk.text;
+        if (text) {
+            fullContent += text;
+            p.textContent = fullContent;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+
+    return fullContent;
 }
 
-// Claude API request using Anthropic SDK
-async function sendClaudeRequest(prompt, apiKey, model) {
+// Claude API request using Anthropic SDK with streaming
+async function sendClaudeRequest(prompt, apiKey, model, messageElement) {
     const anthropic = new Anthropic({
         apiKey: apiKey,
         dangerouslyAllowBrowser: true
     });
 
-    const message = await anthropic.messages.create({
+    const stream = await anthropic.messages.stream({
         model: model,
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }]
     });
 
-    return message.content[0].text;
+    let fullContent = '';
+    const p = messageElement.querySelector('p');
+
+    for await (const chunk of stream) {
+        if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+            fullContent += chunk.delta.text;
+            p.textContent = fullContent;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+
+    return fullContent;
 }
 
 // Initialize Google Sheets

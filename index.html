@@ -16,19 +16,28 @@
             <h1>PersonalBench</h1>
         </div>
 
-        <div class="auth-section" style="display: none;">
-            <h2 style="margin-bottom: 15px;">Connect to Google Sheets</h2>
+        <div class="auth-section">
+            <h2>Connect to Google Sheets</h2>
             <p class="auth-info">Authorize with Google to save and manage your prompts across sessions.</p>
-            <div style="margin-top: 20px;">
-                <div id="loading-message" style="color: #666;">Connecting to Google Sheets...</div>
-                <div id="auth-status" class="auth-status" style="display: none;">✓ Connected to Google Sheets</div>
-                <div id="error-message" style="display: none; color: #dc3545; margin-top: 10px;"></div>
+            <div class="auth-section-content">
+                <div id="loading-message">Connecting to Google Sheets...</div>
+                <div id="auth-status" class="auth-status">✓ Connected to Google Sheets</div>
+                <div id="error-message"></div>
             </div>
         </div>
 
-        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <div class="button-container">
             <a href="test.html" class="cta-button">Test Models</a>
             <a href="manage_prompts.html" class="cta-button">Manage Prompts</a>
+        </div>
+
+        <div class="info-section">
+            <p>We all have favorite prompts for testing out new AI models and products.</p><br>
+            <p>PersonalBench helps you save your personal benchmark queries, makes it easy to try them on new models,
+                and tracks the results.</p><br>
+            <p>PersonalBench doesn't store any data&mdash;your data is stored in your Google Drive account.</p><br>
+            <p>You can find & contribute to the code on <a href="https://github.com/jlove29/personal-bench">GitHub</a>.
+            </p>
         </div>
     </div>
 

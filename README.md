@@ -1,22 +1,26 @@
 # PersonalBench
 
-A personal benchmarking tool for testing and tracking LLM prompts across different models. Test prompts with OpenAI, Google Gemini, and Anthropic Claude, then save and organize your results in Google Sheets for easy comparison and analysis.
+We all have favorite prompts for testing out new AI models and products.
+
+PersonalBench helps you save your personal benchmark queries, makes it easy to try them on new models, and tracks the results.
+
+PersonalBench doesn't store any data - your data is stored in your Google Drive account.
 
 ## Features
 
 ### LLM API Testing
 - Support for multiple LLM providers:
-  - OpenAI (GPT-4, GPT-3.5, etc.)
-  - Google Gemini
-  - Anthropic Claude
+  - OpenAI
+  - Google
+  - Anthropic
 - Simple chat-style interface for testing prompts
-- Local API key storage (stored in browser localStorage)
+- Local API key storage
 
 ### Google Sheets Integration
 - Automatic Google Sheets creation for storing prompts and responses
 - OAuth 2.0 authentication with Google
 - Save prompts with titles and categories
-- Track multiple model responses per prompt with metadata
+- Track multiple model responses per prompt
 - Direct link to view and edit your data in Google Sheets
 
 ### Prompt Management
@@ -24,16 +28,16 @@ A personal benchmarking tool for testing and tracking LLM prompts across differe
 - Organize prompts by category
 - Load saved prompts for quick testing
 - Compare responses from different models side-by-side
-- Track timestamps and metadata for each response
+- Track timestamps for each response
 
 ## Getting Started
 
 ### Prerequisites
 
-LLM API Keys - Get keys from the providers you want to test:
+LLM API keys - Get keys from the providers you want to test:
 - OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- Google Gemini: [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
-- Anthropic Claude: [console.anthropic.com](https://console.anthropic.com/)
+- Google: [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
+- Anthropic: [console.anthropic.com](https://console.anthropic.com/)
 
 ### Setup
 

@@ -636,6 +636,44 @@ input[type="range"]::-moz-range-thumb {
     background: rgba(255, 255, 255, 0.6);
     border: 2px solid #d0d0c8;
     backdrop-filter: blur(10px);
+    display: none;
+}
+
+.auth-section h2 {
+    margin-bottom: 15px;
+}
+
+.auth-section-content {
+    margin-top: 20px;
+}
+
+#loading-message {
+    color: #666;
+}
+
+#auth-status {
+    display: none;
+}
+
+#error-message {
+    display: none;
+    color: #dc3545;
+    margin-top: 10px;
+}
+
+.button-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.info-section {
+    max-width: 600px;
+    margin: 100px auto 0 auto;
+    padding: 20px;
+    text-align: left;
+    font-size: 14px;
 }
 
 .auth-section h2 {

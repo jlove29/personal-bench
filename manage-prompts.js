@@ -115,7 +115,7 @@ function renderPrompts() {
                             <div class="response-header">
                                 <strong>${escapeHtml(resp.modelName)}</strong>
                                 <span class="response-time">${new Date(resp.timestamp).toLocaleString()}</span>
-                                <button class="btn-icon" onclick="deleteResponse(${prompt.id}, ${idx})" title="Delete response">🗑️</button>
+                                <button class="btn-icon" onclick="deleteResponse(${prompt.id}, ${idx})" title="Delete response">✕</button>
                             </div>
                             <div class="response-content">${escapeHtml(resp.response)}</div>
                             ${resp.metadata && Object.keys(resp.metadata).length > 0 ? `

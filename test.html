@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt tester</title>
     <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
     <script src="config.js"></script>
     <script src="sheets-api.js"></script>
 </head>
@@ -17,33 +24,33 @@
                 <a href="index.html" class="btn-icon" title="Back to Home">🏠</a>
                 <button class="config-toggle-btn" onclick="toggleConfig()" title="Toggle Configuration">⚙️</button>
             </div>
-            
+
             <div class="form-group model-field-always-visible">
                 <label for="model-input">Model</label>
                 <input type="text" id="model-input" placeholder="Enter model name">
             </div>
-            
+
             <div class="config-fields">
-            <div class="form-group">
-                <label for="prompt-select">Load Saved Prompt</label>
-                <select id="prompt-select">
-                    <option value="">-- Select a saved prompt --</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="prompt-select">Load Saved Prompt</label>
+                    <select id="prompt-select">
+                        <option value="">-- Select a saved prompt --</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="api-select">API Provider</label>
-                <select id="api-select">
-                    <option value="openai">OpenAI</option>
-                    <option value="gemini">Google Gemini</option>
-                    <option value="claude">Anthropic Claude</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="api-select">API Provider</label>
+                    <select id="api-select">
+                        <option value="openai">OpenAI</option>
+                        <option value="gemini">Google Gemini</option>
+                        <option value="claude">Anthropic Claude</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="api-key">API Key</label>
-                <input type="password" id="api-key" placeholder="Enter your API key">
-            </div>
+                <div class="form-group">
+                    <label for="api-key">API Key</label>
+                    <input type="password" id="api-key" placeholder="Enter your API key">
+                </div>
             </div>
         </div>
 

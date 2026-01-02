@@ -222,27 +222,19 @@ async function sendOpenAIRequest(prompt, apiKey, model) {
 
 // Gemini API request
 async function sendGeminiRequest(prompt, apiKey, model) {
-    const endpoint = `${API_ENDPOINTS.gemini}${model}:generateContent?key=${apiKey}`;
-
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            contents: [{
-                parts: [{ text: prompt }]
-            }]
-        })
+    // Dynamically import the @google/genai SDK
+    const { GoogleGenAI } = await import('@google/genai');
+    
+    // Initialize the SDK with the API key
+    const ai = new GoogleGenAI({ apiKey });
+    
+    // Generate content using the SDK
+    const response = await ai.models.generateContent({
+        model: model,
+        contents: prompt
     });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Gemini API request failed');
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+    
+    return response.text;
 }
 
 // Claude API request

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Prompts - PersonalBench</title>
+    <title>PersonalBench</title>
     <link rel="stylesheet" href="style.css">
     <script src="config.js"></script>
     <script src="sheets-api.js"></script>
@@ -19,10 +19,6 @@
 
     <div class="manage-container">
         <a href="index.html" class="back-link">← Back to Home</a>
-        
-        <div class="page-header">
-            <h1>Manage Prompts</h1>
-        </div>
 
         <!-- Error Message -->
         <div id="error-message"></div>
@@ -47,22 +43,22 @@
     <div id="prompt-modal" class="modal">
         <div class="modal-content">
             <h2 id="modal-title">Add New Prompt</h2>
-            
+
             <div class="form-group">
                 <label for="prompt-title">Title</label>
                 <input type="text" id="prompt-title" placeholder="Enter prompt title">
             </div>
-            
+
             <div class="form-group">
                 <label for="prompt-content">Content</label>
                 <textarea id="prompt-content" placeholder="Enter prompt content"></textarea>
             </div>
-            
+
             <div class="form-group">
                 <label for="prompt-category">Category (optional)</label>
                 <input type="text" id="prompt-category" placeholder="e.g., Coding, Writing, Analysis">
             </div>
-            
+
             <div class="modal-actions">
                 <button class="btn btn-cancel" onclick="hidePromptModal()">Cancel</button>
                 <button class="btn btn-save" onclick="savePrompt()">Save</button>
@@ -75,23 +71,26 @@
         <div class="modal-content">
             <h2>Add Model Response</h2>
             <p style="color: #666; margin-bottom: 20px;">For prompt: <strong id="response-prompt-title"></strong></p>
-            
+
             <div class="form-group">
                 <label for="response-model-name">Model Name</label>
                 <input type="text" id="response-model-name" placeholder="e.g., GPT-4, Claude 3.5, Gemini Pro">
             </div>
-            
+
             <div class="form-group">
                 <label for="response-content">Response</label>
-                <textarea id="response-content" placeholder="Enter the model's response" style="min-height: 150px;"></textarea>
+                <textarea id="response-content" placeholder="Enter the model's response"
+                    style="min-height: 150px;"></textarea>
             </div>
-            
+
             <div class="form-group">
                 <label for="response-metadata">Metadata (optional JSON)</label>
-                <textarea id="response-metadata" placeholder='{"temperature": 0.7, "tokens": 150}' style="min-height: 60px; font-family: monospace;"></textarea>
-                <small style="color: #666;">Optional: Add metadata as JSON (e.g., temperature, token count, etc.)</small>
+                <textarea id="response-metadata" placeholder='{"temperature": 0.7, "tokens": 150}'
+                    style="min-height: 60px; font-family: monospace;"></textarea>
+                <small style="color: #666;">Optional: Add metadata as JSON (e.g., temperature, token count,
+                    etc.)</small>
             </div>
-            
+
             <div class="modal-actions">
                 <button class="btn btn-cancel" onclick="hideResponseModal()">Cancel</button>
                 <button class="btn btn-save" onclick="saveResponse()">Save Response</button>

@@ -12,13 +12,18 @@
 
 <body>
     <div class="container">
-        <header>
-            <a href="index.html" class="back-button">← Back to Home</a>
-            <h1>Prompt tester</h1>
-            <div id="sheets-status" class="sheets-status" style="display: none;">✓ Prompt Tracker Connected</div>
-        </header>
-
-        <div class="config-panel">
+        <div class="config-panel config-panel-with-home">
+            <div class="home-button-wrapper">
+                <a href="index.html" class="btn-icon" title="Back to Home">🏠</a>
+                <button class="config-toggle-btn" onclick="toggleConfig()" title="Toggle Configuration">⚙️</button>
+            </div>
+            
+            <div class="form-group model-field-always-visible">
+                <label for="model-input">Model</label>
+                <input type="text" id="model-input" placeholder="Enter model name">
+            </div>
+            
+            <div class="config-fields">
             <div class="form-group">
                 <label for="prompt-select">Load Saved Prompt</label>
                 <select id="prompt-select">
@@ -36,13 +41,9 @@
             </div>
 
             <div class="form-group">
-                <label for="model-input">Model</label>
-                <input type="text" id="model-input" placeholder="Enter model name">
-            </div>
-
-            <div class="form-group">
                 <label for="api-key">API Key</label>
                 <input type="password" id="api-key" placeholder="Enter your API key">
+            </div>
             </div>
         </div>
 
@@ -70,6 +71,12 @@
 
     </div>
 
+    <script>
+        function toggleConfig() {
+            const configFields = document.querySelector('.config-fields');
+            configFields.classList.toggle('expanded');
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 

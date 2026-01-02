@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,7 +7,7 @@
 }
 
 body {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     height: 100vh;
     padding: 20px 100px;
     background: linear-gradient(to bottom, #f5f5f0 0%, #e8e8e0 100%);
@@ -78,6 +80,63 @@ header h1 {
     border-bottom: 2px solid #d0d0c8;
 }
 
+.config-panel-with-home {
+    grid-template-columns: auto 2fr 1.5fr 1.5fr 2fr;
+}
+
+.home-button-wrapper {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 2px;
+}
+
+.config-toggle-btn {
+    display: none;
+    position: absolute;
+    visibility: hidden;
+}
+
+.model-field-always-visible {
+    order: 3;
+}
+
+.config-fields {
+    display: contents;
+}
+
+.config-fields > .form-group:nth-child(1) {
+    order: 2;
+}
+
+.config-fields > .form-group:nth-child(2) {
+    order: 4;
+}
+
+.config-fields > .form-group:nth-child(3) {
+    order: 5;
+}
+
+.config-toggle-btn {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    background: #1a1a1a;
+    color: #fff;
+    border: 2px solid #1a1a1a;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.config-toggle-btn:hover {
+    background: #fff;
+    color: #1a1a1a;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -100,7 +159,7 @@ header h1 {
     font-size: 0.95rem;
     transition: all 0.2s;
     background: #fff;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 .form-group select:focus,
@@ -113,7 +172,7 @@ header h1 {
 .form-group small {
     color: #4a4a4a;
     font-size: 0.75rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 .chat-container {
@@ -137,7 +196,7 @@ header h1 {
     max-width: 80%;
     animation: slideIn 0.3s ease-out;
     border: 2px solid #1a1a1a;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 @keyframes slideIn {
@@ -218,7 +277,7 @@ header h1 {
     padding: 12px;
     border: 2px solid #1a1a1a;
     font-size: 0.95rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     resize: vertical;
     transition: all 0.2s;
     background: #fff;
@@ -236,10 +295,10 @@ header h1 {
     color: #fff;
     border: 2px solid #1a1a1a;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -255,11 +314,11 @@ header h1 {
     color: #fff;
     border: 2px solid #1a1a1a;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -315,10 +374,10 @@ header h1 {
     color: #fff;
     border: 2px solid #1a1a1a;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -337,7 +396,7 @@ header h1 {
     font-size: 0.85rem;
     font-weight: 700;
     display: inline-block;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -507,7 +566,7 @@ input[type="range"]::-moz-range-thumb {
     color: #1a1a1a;
     font-weight: 700;
     letter-spacing: -1px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     position: relative;
 }
@@ -527,7 +586,7 @@ input[type="range"]::-moz-range-thumb {
     font-size: 1.1rem;
     color: #4a4a4a;
     line-height: 1.8;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 .cta-button {
@@ -541,8 +600,8 @@ input[type="range"]::-moz-range-thumb {
     text-decoration: none;
     transition: all 0.2s ease;
     cursor: pointer;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 4px 4px 0 #1a1a1a;
@@ -568,7 +627,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .auth-section h2 {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     color: #1a1a1a;
     font-size: 1.3rem;
     text-transform: uppercase;
@@ -581,10 +640,10 @@ input[type="range"]::-moz-range-thumb {
     color: #fff;
     border: 2px solid #1a1a1a;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -600,7 +659,7 @@ input[type="range"]::-moz-range-thumb {
     background: #1a1a1a;
     color: #fff;
     font-weight: 500;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     border: 2px solid #1a1a1a;
 }
 
@@ -608,7 +667,7 @@ input[type="range"]::-moz-range-thumb {
     margin-top: 15px;
     color: #4a4a4a;
     font-size: 0.9rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 /* ========================================
@@ -640,7 +699,7 @@ input[type="range"]::-moz-range-thumb {
     margin-bottom: 20px;
     color: #1a1a1a;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 0.85rem;
@@ -696,9 +755,9 @@ input[type="range"]::-moz-range-thumb {
     border: 2px solid #1a1a1a;
     cursor: pointer;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 500;
     transition: all 0.2s;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -735,10 +794,10 @@ input[type="range"]::-moz-range-thumb {
     color: #fff;
     border: 2px solid #1a1a1a;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
@@ -757,9 +816,9 @@ input[type="range"]::-moz-range-thumb {
     color: #fff;
     border: 2px solid #1a1a1a;
     font-size: 1.1rem;
-    font-weight: 700;
+    font-weight: 500;
     cursor: pointer;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
@@ -781,7 +840,7 @@ input[type="range"]::-moz-range-thumb {
     border: 1px solid #1a1a1a;
     font-size: 0.75rem;
     margin-top: 10px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -801,10 +860,10 @@ input[type="range"]::-moz-range-thumb {
     background: #1a1a1a;
     color: #fff;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     transition: all 0.2s;
     border: 2px solid #1a1a1a;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
@@ -852,7 +911,7 @@ input[type="range"]::-moz-range-thumb {
 .response-time {
     color: #4a4a4a;
     font-size: 0.8rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 .response-content {
@@ -875,7 +934,7 @@ input[type="range"]::-moz-range-thumb {
     color: #1a1a1a;
     border: 1px solid #1a1a1a;
     font-size: 0.75rem;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
 }
 
 .no-responses {
@@ -963,7 +1022,7 @@ input[type="range"]::-moz-range-thumb {
     background: #fff;
     color: #d32f2f;
     border: 2px solid #d32f2f;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
 }
 
@@ -978,6 +1037,47 @@ input[type="range"]::-moz-range-thumb {
 /* ========================================
    RESPONSIVE DESIGN
    ======================================== */
+
+@media (max-width: 1024px) {
+    .config-panel-with-home {
+        grid-template-columns: 1fr;
+        padding: 20px 30px;
+    }
+    
+    .home-button-wrapper {
+        justify-content: center;
+        padding-bottom: 0;
+        order: 1;
+        grid-column: 1;
+        gap: 10px;
+    }
+    
+    .config-toggle-btn {
+        display: flex;
+        position: static;
+        visibility: visible;
+        order: 1;
+        margin: 0;
+    }
+    
+    .model-field-always-visible {
+        order: 2;
+    }
+    
+    .config-fields {
+        display: none;
+        grid-column: 1;
+        order: 3;
+    }
+    
+    .config-fields.expanded {
+        display: contents;
+    }
+    
+    .config-fields > .form-group {
+        order: unset;
+    }
+}
 
 @media (max-width: 768px) {
     .config-panel {

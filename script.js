@@ -1,3 +1,4 @@
+import Anthropic from '@anthropic-ai/sdk';
 
 // API endpoints
 const API_ENDPOINTS = {
@@ -101,12 +102,12 @@ function addMessage(content, type) {
     messageDiv.appendChild(p);
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    
+
     // Show clear button when there are messages
     if (messagesContainer.children.length > 0) {
         clearBtn.style.display = 'inline-block';
     }
-    
+
     return messageDiv;
 }
 
@@ -224,42 +225,33 @@ async function sendOpenAIRequest(prompt, apiKey, model) {
 async function sendGeminiRequest(prompt, apiKey, model) {
     // Dynamically import the @google/genai SDK
     const { GoogleGenAI } = await import('@google/genai');
-    
+
     // Initialize the SDK with the API key
     const ai = new GoogleGenAI({ apiKey });
-    
+
     // Generate content using the SDK
     const response = await ai.models.generateContent({
         model: model,
         contents: prompt
     });
-    
+
     return response.text;
 }
 
-// Claude API request
+// Claude API request using Anthropic SDK
 async function sendClaudeRequest(prompt, apiKey, model) {
-    const response = await fetch(API_ENDPOINTS.claude, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-            model: model,
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 1024
-        })
+    const anthropic = new Anthropic({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true
     });
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Claude API request failed');
-    }
+    const message = await anthropic.messages.create({
+        model: model,
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }]
+    });
 
-    const data = await response.json();
-    return data.content[0].text;
+    return message.content[0].text;
 }
 
 // Initialize Google Sheets
@@ -311,7 +303,7 @@ function handlePromptSelect() {
     lastResponse = '';
     saveToTrackerBtn.style.display = 'none';
     clearBtn.style.display = 'none';
-    
+
     const selectedId = parseInt(promptSelect.value);
     if (!selectedId) {
         promptInput.value = '';

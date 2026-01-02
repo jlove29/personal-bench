@@ -9,7 +9,8 @@
     <script type="importmap">
       {
         "imports": {
-          "@google/genai": "https://esm.run/@google/genai"
+          "@google/genai": "https://esm.run/@google/genai",
+          "@anthropic-ai/sdk": "https://esm.run/@anthropic-ai/sdk"
         }
       }
     </script>
@@ -84,7 +85,7 @@
             configFields.classList.toggle('expanded');
         }
     </script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>

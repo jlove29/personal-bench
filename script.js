@@ -16,6 +16,7 @@ const messagesContainer = document.getElementById('messages');
 const promptSelect = document.getElementById('prompt-select');
 const sheetsStatus = document.getElementById('sheets-status');
 const saveToTrackerBtn = document.getElementById('save-to-tracker-btn');
+const clearBtn = document.getElementById('clear-btn');
 
 // State
 let isAuthorizedForSheets = false;
@@ -31,13 +32,15 @@ async function init() {
     loadModel();
 
     // Event listeners
-    apiSelect.addEventListener('change', handleApiChange);
-    apiKeyInput.addEventListener('input', saveApiKey);
-    modelInput.addEventListener('input', saveModel);
+    apiSelect.addEventListener('change', () => { clearStatusMessages(); handleApiChange(); });
+    apiKeyInput.addEventListener('input', () => { clearStatusMessages(); saveApiKey(); });
+    modelInput.addEventListener('input', () => { clearStatusMessages(); saveModel(); });
     sendBtn.addEventListener('click', handleSendMessage);
     promptInput.addEventListener('keydown', handleKeyPress);
+    promptInput.addEventListener('input', clearStatusMessages);
     promptSelect.addEventListener('change', handlePromptSelect);
     saveToTrackerBtn.addEventListener('click', handleSaveToTracker);
+    clearBtn.addEventListener('click', handleClearMessages);
 
     // Initialize Google Sheets API
     await initializeSheets();
@@ -98,10 +101,41 @@ function addMessage(content, type) {
     messageDiv.appendChild(p);
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Show clear button when there are messages
+    if (messagesContainer.children.length > 0) {
+        clearBtn.style.display = 'inline-block';
+    }
+    
+    return messageDiv;
+}
+
+// Clear status messages (success/error messages)
+function clearStatusMessages() {
+    const statusMessages = messagesContainer.querySelectorAll('.message.success, .message.error');
+    statusMessages.forEach(msg => msg.remove());
+}
+
+// Add loading indicator
+function addLoadingIndicator() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant loading-message';
+    messageDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    return messageDiv;
+}
+
+// Remove loading indicator
+function removeLoadingIndicator(loadingElement) {
+    if (loadingElement && loadingElement.parentNode) {
+        loadingElement.parentNode.removeChild(loadingElement);
+    }
 }
 
 // Handle send message
 async function handleSendMessage() {
+    clearStatusMessages();
     const prompt = promptInput.value.trim();
     const apiKey = apiKeyInput.value.trim();
 
@@ -127,14 +161,19 @@ async function handleSendMessage() {
     // Disable send button
     sendBtn.disabled = true;
 
+    // Add loading indicator
+    const loadingIndicator = addLoadingIndicator();
+
     try {
         const response = await sendApiRequest(prompt, apiKey);
         lastResponse = response;
+        removeLoadingIndicator(loadingIndicator);
         addMessage(response, 'assistant');
         if (isAuthorizedForSheets) {
             saveToTrackerBtn.style.display = 'inline-block';
         }
     } catch (error) {
+        removeLoadingIndicator(loadingIndicator);
         addMessage(`Error: ${error.message}`, 'error');
     } finally {
         sendBtn.disabled = false;
@@ -250,7 +289,6 @@ async function initializeSheets() {
                 }
             }
             isAuthorizedForSheets = true;
-            sheetsStatus.style.display = 'block';
             await loadPrompts();
         }
     } catch (error) {
@@ -275,7 +313,13 @@ async function loadPrompts() {
 }
 
 function handlePromptSelect() {
+    // Clear all messages and reset state
     messagesContainer.innerHTML = '';
+    lastPrompt = '';
+    lastResponse = '';
+    saveToTrackerBtn.style.display = 'none';
+    clearBtn.style.display = 'none';
+    
     const selectedId = parseInt(promptSelect.value);
     if (!selectedId) {
         promptInput.value = '';
@@ -328,6 +372,14 @@ async function handleSaveToTracker() {
     } finally {
         saveToTrackerBtn.disabled = false;
     }
+}
+
+function handleClearMessages() {
+    messagesContainer.innerHTML = '';
+    lastPrompt = '';
+    lastResponse = '';
+    saveToTrackerBtn.style.display = 'none';
+    clearBtn.style.display = 'none';
 }
 
 // Initialize app when DOM is ready

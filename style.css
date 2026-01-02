@@ -104,15 +104,15 @@ header h1 {
     display: contents;
 }
 
-.config-fields > .form-group:nth-child(1) {
+.config-fields>.form-group:nth-child(1) {
     order: 2;
 }
 
-.config-fields > .form-group:nth-child(2) {
+.config-fields>.form-group:nth-child(2) {
     order: 4;
 }
 
-.config-fields > .form-group:nth-child(3) {
+.config-fields>.form-group:nth-child(3) {
     order: 5;
 }
 
@@ -534,10 +534,14 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes typing {
-    0%, 60%, 100% {
+
+    0%,
+    60%,
+    100% {
         opacity: 0.3;
         transform: translateY(0);
     }
+
     30% {
         opacity: 1;
         transform: translateY(-8px);
@@ -578,8 +582,16 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
 }
 
 .landing-header p {
@@ -789,23 +801,23 @@ input[type="range"]::-moz-range-thumb {
 
 .add-prompt-btn {
     display: inline-block;
-    padding: 12px 24px;
-    background: #1a1a1a;
-    color: #fff;
+    padding: 8px 16px;
+    background: #fff;
+    color: #1a1a1a;
     border: 2px solid #1a1a1a;
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .add-prompt-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .authorize-btn {
@@ -847,18 +859,49 @@ input[type="range"]::-moz-range-thumb {
 
 .button-toolbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 20px;
     gap: 20px;
     flex-wrap: wrap;
 }
 
-.sheet-link {
+.button-toolbar .back-link {
+    margin-bottom: 0;
+}
+
+/* Shared styling for all toolbar buttons */
+.button-toolbar .back-link,
+.button-toolbar .add-prompt-btn,
+.button-toolbar .sheet-link {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 8px 16px;
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.button-toolbar .back-link:hover,
+.button-toolbar .add-prompt-btn:hover,
+.button-toolbar .sheet-link:hover {
     background: #1a1a1a;
     color: #fff;
+    transform: translate(2px, 2px);
+}
+
+.sheet-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #fff;
+    color: #1a1a1a;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.2s;
@@ -866,14 +909,13 @@ input[type="range"]::-moz-range-thumb {
     font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+    font-size: 0.85rem;
 }
 
 .sheet-link:hover {
-    background: #fff;
-    color: #1a1a1a;
+    background: #1a1a1a;
+    color: #fff;
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* Model Responses */
@@ -1011,8 +1053,13 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 #error-message {
@@ -1043,7 +1090,7 @@ input[type="range"]::-moz-range-thumb {
         grid-template-columns: 1fr;
         padding: 20px 30px;
     }
-    
+
     .home-button-wrapper {
         justify-content: center;
         padding-bottom: 0;
@@ -1051,7 +1098,7 @@ input[type="range"]::-moz-range-thumb {
         grid-column: 1;
         gap: 10px;
     }
-    
+
     .config-toggle-btn {
         display: flex;
         position: static;
@@ -1059,22 +1106,22 @@ input[type="range"]::-moz-range-thumb {
         order: 1;
         margin: 0;
     }
-    
+
     .model-field-always-visible {
         order: 2;
     }
-    
+
     .config-fields {
         display: none;
         grid-column: 1;
         order: 3;
     }
-    
+
     .config-fields.expanded {
         display: contents;
     }
-    
-    .config-fields > .form-group {
+
+    .config-fields>.form-group {
         order: unset;
     }
 }
@@ -1094,5 +1141,25 @@ input[type="range"]::-moz-range-thumb {
 
     .landing-header h1 {
         font-size: 2.5rem;
+    }
+
+    /* Hide Google Sheets button on mobile */
+    .button-toolbar .sheet-link {
+        display: none;
+    }
+
+    /* Stack toolbar buttons vertically and center-align */
+    .button-toolbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .button-toolbar {
+        margin-bottom: 0;
+        gap: 10px;
+    }
+
+    .manage-container {
+        padding-top: 0;
     }
 }

@@ -101,7 +101,7 @@ function addMessage(content, type) {
     p.textContent = content;
     messageDiv.appendChild(p);
     messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
     // Show clear button when there are messages
     if (messagesContainer.children.length > 0) {
@@ -239,7 +239,7 @@ async function sendOpenAIRequest(prompt, apiKey, model, messageElement) {
                     if (content) {
                         fullContent += content;
                         p.textContent = fullContent;
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
                     }
                 } catch (e) {
                     // Skip invalid JSON
@@ -273,7 +273,7 @@ async function sendGeminiRequest(prompt, apiKey, model, messageElement) {
         if (text) {
             fullContent += text;
             p.textContent = fullContent;
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }
 
@@ -300,7 +300,7 @@ async function sendClaudeRequest(prompt, apiKey, model, messageElement) {
         if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
             fullContent += chunk.delta.text;
             p.textContent = fullContent;
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     }
 

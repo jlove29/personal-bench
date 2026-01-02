@@ -247,7 +247,6 @@ function showResponseModal(promptId) {
     document.getElementById('response-prompt-title').textContent = prompt.title;
     document.getElementById('response-model-name').value = '';
     document.getElementById('response-content').value = '';
-    document.getElementById('response-metadata').value = '';
     modal.dataset.promptId = promptId;
     modal.style.display = 'flex';
 }
@@ -263,27 +262,16 @@ async function saveResponse() {
     const promptId = parseInt(modal.dataset.promptId);
     const modelName = document.getElementById('response-model-name').value.trim();
     const responseContent = document.getElementById('response-content').value.trim();
-    const metadataStr = document.getElementById('response-metadata').value.trim();
 
     if (!modelName || !responseContent) {
         alert('Please fill in both model name and response.');
         return;
     }
 
-    let metadata = {};
-    if (metadataStr) {
-        try {
-            metadata = JSON.parse(metadataStr);
-        } catch (e) {
-            alert('Invalid JSON in metadata field. Please fix or leave empty.');
-            return;
-        }
-    }
-
     showLoading(true);
 
     try {
-        await sheetsAPI.addModelResponse(promptId, modelName, responseContent, metadata);
+        await sheetsAPI.addModelResponse(promptId, modelName, responseContent, {});
         hideResponseModal();
         await loadPrompts();
     } catch (error) {

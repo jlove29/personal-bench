@@ -1014,9 +1014,7 @@ input[type="range"]::-moz-range-thumb {
 
 .modal-content h2 {
     margin-top: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
+    font-weight: 500;
     color: #1a1a1a;
 }
 

@@ -9,88 +9,136 @@
     <script src="config.js"></script>
     <script src="sheets-api.js"></script>
     <style>
+        body {
+            background: linear-gradient(to bottom, #f5f5f0 0%, #e8e8e0 100%);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
         .landing-container {
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 80px 20px;
             text-align: center;
         }
 
         .landing-header {
-            margin-bottom: 40px;
+            margin-bottom: 60px;
+            position: relative;
         }
 
         .landing-header h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            background: black;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .landing-header h1::after {
+            content: '_';
+            animation: blink 1s infinite;
+            margin-left: 4px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
         .landing-header p {
-            font-size: 1.25rem;
-            color: #666;
-            line-height: 1.6;
+            font-size: 1.1rem;
+            color: #4a4a4a;
+            line-height: 1.8;
+            font-family: 'Courier New', Courier, monospace;
         }
 
         .cta-button {
             display: inline-block;
-            margin-top: 30px;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: black;
-            background: lightblue;
-            border: none;
-            border-radius: 8px;
+            margin: 10px;
+            padding: 16px 36px;
+            font-size: 1rem;
+            color: #1a1a1a;
+            background: #fff;
+            border: 2px solid #1a1a1a;
             text-decoration: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.2s ease;
             cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 4px 4px 0 #1a1a1a;
+            position: relative;
         }
 
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #1a1a1a;
+        }
+
+        .cta-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0 0 0 #1a1a1a;
         }
 
         .auth-section {
-            margin: 40px 0;
+            margin: 50px 0;
             padding: 30px;
-            background: #f8f9fa;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid #d0d0c8;
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-section h2 {
+            font-family: 'Courier New', Courier, monospace;
+            color: #1a1a1a;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .auth-button {
             padding: 12px 30px;
-            background: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            background: #1a1a1a;
+            color: #fff;
+            border: 2px solid #1a1a1a;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .auth-button:hover {
-            background: #357ae8;
+            background: #fff;
+            color: #1a1a1a;
         }
 
         .auth-status {
             display: inline-block;
             padding: 10px 20px;
-            background: #d4edda;
-            color: #155724;
-            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
             font-weight: 500;
+            font-family: 'Courier New', Courier, monospace;
+            border: 2px solid #1a1a1a;
         }
 
         .auth-info {
             margin-top: 15px;
-            color: #666;
-            font-size: 0.95rem;
+            color: #4a4a4a;
+            font-size: 0.9rem;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #loading-message,
+        #error-message {
+            font-family: 'Courier New', Courier, monospace;
         }
     </style>
 </head>
@@ -123,12 +171,12 @@
         async function initializeApp() {
             const loadingMsg = document.getElementById('loading-message');
             const errorMsg = document.getElementById('error-message');
-            
+
             try {
                 console.log('Initializing Google Sheets API...');
                 await sheetsAPI.init();
                 console.log('Google Sheets API initialized successfully');
-                
+
                 // Check if already authorized
                 const authStatus = sessionStorage.getItem('sheetsAuthorized');
                 if (authStatus === 'true') {
@@ -151,18 +199,18 @@
         async function authorizeUser() {
             const loadingMsg = document.getElementById('loading-message');
             const errorMsg = document.getElementById('error-message');
-            
+
             try {
                 console.log('Starting authorization...');
                 await sheetsAPI.authorize();
                 console.log('Authorization successful, getting sheet ID...');
                 await sheetsAPI.getUserSheetId();
                 console.log('Sheet ID obtained');
-                
+
                 // Store authorization state
                 sessionStorage.setItem('sheetsAuthorized', 'true');
                 isAuthorized = true;
-                
+
                 loadingMsg.style.display = 'none';
                 showAuthorized();
             } catch (error) {

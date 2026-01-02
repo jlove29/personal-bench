@@ -30,39 +30,17 @@ A personal benchmarking tool for testing and tracking LLM prompts across differe
 
 ### Prerequisites
 
-1. LLM API Keys - Get keys from the providers you want to test:
-   - OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-   - Google Gemini: [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
-   - Anthropic Claude: [console.anthropic.com](https://console.anthropic.com/)
-
-2. Google Cloud Project - For Google Sheets integration:
-   - See [SETUP_GOOGLE_SHEETS.md](SETUP_GOOGLE_SHEETS.md) for detailed setup instructions
-   - You'll need to create a Google Cloud project and enable the Sheets API
-   - Configure OAuth 2.0 credentials
+LLM API Keys - Get keys from the providers you want to test:
+- OpenAI: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- Google Gemini: [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
+- Anthropic Claude: [console.anthropic.com](https://console.anthropic.com/)
 
 ### Setup
 
 1. Clone or download this repository
-2. Follow the instructions in `SETUP_GOOGLE_SHEETS.md` to configure Google Sheets API
-3. Update `config.js` with your Google Cloud OAuth client ID
-4. Open `index.html` in a web browser
-5. Authorize with Google to enable prompt tracking
-
-### Usage
-
-1. Launch the Tester (`test.html`):
-   - Select an API provider and model
-   - Enter your API key (saved locally per provider)
-   - Type or load a saved prompt
-   - Click send to get a response
-   - Save the prompt and response to your tracker
-
-2. Manage Prompts (`manage_prompts.html`):
-   - View all saved prompts and their responses
-   - Create new prompts with titles and categories
-   - Edit or delete existing prompts
-   - Add model responses manually
-   - Compare responses from different models
+2. Update `config.js` with your Google Cloud OAuth client ID
+3. Open `index.html` in a web browser
+4. Authorize with Google to enable prompt tracking
 
 ## Project Structure
 
@@ -75,22 +53,12 @@ A personal benchmarking tool for testing and tracking LLM prompts across differe
 - `config.js` - Configuration (Google OAuth client ID)
 - `style.css` - Styling
 
-## Data Storage
-
-- API Keys: Stored in browser localStorage (never sent to Google Sheets)
-- Prompts & Responses: Stored in your personal Google Sheet
-- Sheet Structure:
-  - Column A: Title
-  - Column B: Content (prompt text)
-  - Column C: Category
-  - Column D: ModelResponses (JSON array of responses with metadata)
-
 ## Security Notes
 
 - This is a client-side application
 - API keys are stored in localStorage and sent directly from your browser to the respective API providers
 - Google Sheets access uses OAuth 2.0 with session-based token storage
-- For production use, consider implementing a backend proxy for API requests
+- Each user owns their own Google Sheet
 
 ## Browser Compatibility
 

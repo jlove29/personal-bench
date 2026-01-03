@@ -114,8 +114,40 @@ class SheetsAPI {
         // Check localStorage first
         const storedSheetId = localStorage.getItem('personalBenchSheetId');
         if (storedSheetId) {
-            this.sheetId = storedSheetId;
-            return storedSheetId;
+            // Verify the spreadsheet still exists and is accessible
+            try {
+                await gapi.client.sheets.spreadsheets.get({
+                    spreadsheetId: storedSheetId
+                });
+                this.sheetId = storedSheetId;
+                return storedSheetId;
+            } catch (error) {
+                console.log('Stored spreadsheet not accessible, will search for existing or create new');
+                localStorage.removeItem('personalBenchSheetId');
+            }
+        }
+
+        // Search for existing PersonalBench spreadsheet
+        try {
+            const searchResponse = await gapi.client.request({
+                'path': 'https://www.googleapis.com/drive/v3/files',
+                'method': 'GET',
+                'params': {
+                    'q': "name='PersonalBench Prompts' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+                    'orderBy': 'createdTime desc',
+                    'pageSize': 1
+                }
+            });
+
+            if (searchResponse.result.files && searchResponse.result.files.length > 0) {
+                const existingSheetId = searchResponse.result.files[0].id;
+                console.log('Found existing PersonalBench spreadsheet');
+                this.sheetId = existingSheetId;
+                localStorage.setItem('personalBenchSheetId', existingSheetId);
+                return existingSheetId;
+            }
+        } catch (error) {
+            console.error('Error searching for existing spreadsheet:', error);
         }
 
         // Create a new sheet

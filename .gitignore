@@ -13,4 +13,4 @@ Thumbs.db
 *.log
 
 # Dev stuff
-SETUP_GOOGLE_SHEETS.md
+dev/

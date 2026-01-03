@@ -6,7 +6,7 @@ PersonalBench helps you save your personal benchmark queries, makes it easy to t
 
 PersonalBench doesn't store any data - your data is stored in your Google Drive account.
 
-Access the app [here](https://jujukin.com/personal_bench).
+Access the app [here](https://jujukin.com/pages/personal_bench).
 
 ## Features
 

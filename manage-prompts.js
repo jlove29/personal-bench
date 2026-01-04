@@ -326,6 +326,7 @@ function escapeHtml(text) {
 if (window.TEST_MODE) {
     window.setTestPrompts = function(testPrompts) {
         prompts = testPrompts;
+        window.savedPrompts = testPrompts; // For test compatibility
     };
 }
 

@@ -115,7 +115,7 @@ function renderPrompts() {
                             <div class="response-header">
                                 <strong>${escapeHtml(resp.modelName)}</strong>
                                 <span class="response-time">${new Date(resp.timestamp).toLocaleString()}</span>
-                                <button class="btn-icon" onclick="deleteResponse(${prompt.id}, ${idx})" title="Delete response">✕</button>
+                                <button class="btn-icon" onclick="deleteResponse(${prompt.rowId}, ${idx})" title="Delete response">✕</button>
                             </div>
                             <div class="response-content">${escapeHtml(resp.response)}</div>
                             ${resp.metadata && Object.keys(resp.metadata).length > 0 ? `
@@ -132,15 +132,15 @@ function renderPrompts() {
             : '<p class="no-responses">No model responses yet.</p>';
 
         return `
-            <div class="prompt-item" data-id="${prompt.id}">
+            <div class="prompt-item" data-id="${prompt.rowId}">
                 <h3>${escapeHtml(prompt.title)}</h3>
                 <p>${escapeHtml(prompt.content)}</p>
                 ${prompt.category ? `<span class="category-tag">${escapeHtml(prompt.category)}</span>` : ''}
                 ${responsesHtml}
                 <div class="prompt-actions">
-                    <button class="btn btn-primary" onclick="showResponseModal(${prompt.id})">Add Response</button>
-                    <button class="btn btn-edit" onclick="editPrompt(${prompt.id})">Edit</button>
-                    <button class="btn btn-delete" onclick="deletePrompt(${prompt.id})">Delete</button>
+                    <button class="btn btn-primary" onclick="showResponseModal(${prompt.rowId})">Add Response</button>
+                    <button class="btn btn-edit" onclick="editPrompt(${prompt.rowId})">Edit</button>
+                    <button class="btn btn-delete" onclick="deletePrompt(${prompt.rowId})">Delete</button>
                 </div>
             </div>
         `;
@@ -157,7 +157,7 @@ function showPromptModal(promptId = null) {
 
     if (promptId) {
         // Edit mode
-        const prompt = prompts.find(p => p.id === promptId);
+        const prompt = prompts.find(p => p.rowId === promptId);
         title.textContent = 'Edit Prompt';
         titleInput.value = prompt.title;
         contentInput.value = prompt.content;
@@ -240,7 +240,7 @@ async function deletePrompt(promptId) {
 // Show response modal
 function showResponseModal(promptId) {
     const modal = document.getElementById('response-modal');
-    const prompt = prompts.find(p => p.id === promptId);
+    const prompt = prompts.find(p => p.rowId === promptId);
 
     if (!prompt) return;
 

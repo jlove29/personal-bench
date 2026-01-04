@@ -19,6 +19,6 @@ const CONFIG = {
         'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
     ],
 
-    // Authorization scopes (includes permission to create spreadsheets)
-    SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file'
+    // Authorization scope (drive.file allows full access to files created by the app)
+    SCOPES: 'https://www.googleapis.com/auth/drive.file'
 };

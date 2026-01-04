@@ -340,7 +340,7 @@ async function loadPrompts() {
         promptSelect.innerHTML = '<option value="">-- Select a saved prompt --</option>';
         savedPrompts.forEach(prompt => {
             const option = document.createElement('option');
-            option.value = prompt.id;
+            option.value = prompt.rowId;
             option.textContent = `${prompt.title}${prompt.category ? ` [${prompt.category}]` : ''}`;
             promptSelect.appendChild(option);
         });
@@ -363,7 +363,7 @@ function handlePromptSelect() {
         return;
     }
 
-    const prompt = savedPrompts.find(p => p.id === selectedId);
+    const prompt = savedPrompts.find(p => p.rowId === selectedId);
     if (prompt) {
         promptInput.value = prompt.content;
         promptInput.focus();

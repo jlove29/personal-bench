@@ -75,33 +75,28 @@ class SheetsAPI {
         });
     }
 
-    // Create a new Google Sheet for the user
+    // Create a new Google Sheet for the user using Drive API
     async createSpreadsheet() {
         try {
-            const response = await gapi.client.sheets.spreadsheets.create({
-                properties: {
-                    title: 'PersonalBench Prompts'
-                },
-                sheets: [{
-                    properties: {
-                        title: CONFIG.SHEET_NAME
-                    },
-                    data: [{
-                        startRow: 0,
-                        startColumn: 0,
-                        rowData: [{
-                            values: [
-                                { userEnteredValue: { stringValue: 'Title' } },
-                                { userEnteredValue: { stringValue: 'Content' } },
-                                { userEnteredValue: { stringValue: 'Category' } },
-                                { userEnteredValue: { stringValue: 'ModelResponses' } }
-                            ]
-                        }]
-                    }]
-                }]
+            // Create a new spreadsheet file using Drive API
+            const fileMetadata = {
+                name: 'PersonalBench Prompts',
+                mimeType: 'application/vnd.google-apps.spreadsheet'
+            };
+
+            const response = await gapi.client.drive.files.create({
+                resource: fileMetadata,
+                fields: 'id'
             });
 
-            this.sheetId = response.result.spreadsheetId;
+            this.sheetId = response.result.id;
+            
+            // Initialize with header row using CSV format
+            const csvContent = 'Title,Content,Category,ModelResponses\n';
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            
+            await this.uploadFileContent(this.sheetId, blob);
+            
             return this.sheetId;
         } catch (error) {
             console.error('Error creating spreadsheet:', error);
@@ -109,96 +104,187 @@ class SheetsAPI {
         }
     }
 
+    // Helper method to upload content to a file
+    async uploadFileContent(fileId, blob) {
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const close_delim = "\r\n--" + boundary + "--";
+
+        const contentType = 'text/csv';
+        const metadata = {
+            mimeType: 'application/vnd.google-apps.spreadsheet'
+        };
+
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+            reader.readAsArrayBuffer(blob);
+            reader.onload = async () => {
+                const base64Data = btoa(
+                    new Uint8Array(reader.result)
+                        .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                );
+
+                const multipartRequestBody =
+                    delimiter +
+                    'Content-Type: application/json\r\n\r\n' +
+                    JSON.stringify(metadata) +
+                    delimiter +
+                    'Content-Type: ' + contentType + '\r\n' +
+                    'Content-Transfer-Encoding: base64\r\n' +
+                    '\r\n' +
+                    base64Data +
+                    close_delim;
+
+                try {
+                    const response = await gapi.client.request({
+                        path: `/upload/drive/v3/files/${fileId}`,
+                        method: 'PATCH',
+                        params: { uploadType: 'multipart' },
+                        headers: {
+                            'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+                        },
+                        body: multipartRequestBody
+                    });
+                    resolve(response);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+        });
+    }
+
     // Get or create the user's sheet ID
     async getUserSheetId() {
-        // Check localStorage first
-        const storedSheetId = localStorage.getItem('personalBenchSheetId');
-        if (storedSheetId) {
-            // Verify the spreadsheet still exists and is accessible
-            try {
-                await gapi.client.sheets.spreadsheets.get({
-                    spreadsheetId: storedSheetId
-                });
-                this.sheetId = storedSheetId;
-                return storedSheetId;
-            } catch (error) {
-                console.log('Stored spreadsheet not accessible, will search for existing or create new');
-                localStorage.removeItem('personalBenchSheetId');
-            }
-        }
-
-        // Search for existing PersonalBench spreadsheet
         try {
-            const searchResponse = await gapi.client.request({
-                'path': 'https://www.googleapis.com/drive/v3/files',
-                'method': 'GET',
-                'params': {
-                    'q': "name='PersonalBench Prompts' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
-                    'orderBy': 'createdTime desc',
-                    'pageSize': 1
+            // Check if we have a stored sheet ID
+            const storedSheetId = localStorage.getItem('personalBenchSheetId');
+            if (storedSheetId) {
+                // Verify the sheet still exists and is not trashed
+                try {
+                    const fileCheck = await gapi.client.drive.files.get({
+                        fileId: storedSheetId,
+                        fields: 'id,trashed'
+                    });
+                    // Only use if not trashed
+                    if (!fileCheck.result.trashed) {
+                        this.sheetId = storedSheetId;
+                        return storedSheetId;
+                    } else {
+                        console.log('Stored sheet is in trash, will search for another or create new one');
+                        localStorage.removeItem('personalBenchSheetId');
+                    }
+                } catch (error) {
+                    console.log('Stored sheet not found, creating new one');
+                    localStorage.removeItem('personalBenchSheetId');
                 }
+            }
+
+            // Search for existing PersonalBench spreadsheet in Drive
+            const searchResponse = await gapi.client.drive.files.list({
+                q: "name='PersonalBench Prompts' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false",
+                spaces: 'drive',
+                fields: 'files(id, name)'
             });
 
             if (searchResponse.result.files && searchResponse.result.files.length > 0) {
-                const existingSheetId = searchResponse.result.files[0].id;
-                console.log('Found existing PersonalBench spreadsheet');
-                this.sheetId = existingSheetId;
-                localStorage.setItem('personalBenchSheetId', existingSheetId);
-                return existingSheetId;
+                // Use the first matching spreadsheet
+                this.sheetId = searchResponse.result.files[0].id;
+                localStorage.setItem('personalBenchSheetId', this.sheetId);
+                return this.sheetId;
             }
-        } catch (error) {
-            console.error('Error searching for existing spreadsheet:', error);
-        }
 
-        // Create a new sheet
-        const newSheetId = await this.createSpreadsheet();
-        localStorage.setItem('personalBenchSheetId', newSheetId);
-        return newSheetId;
+            // No existing sheet found, create a new one
+            const newSheetId = await this.createSpreadsheet();
+            localStorage.setItem('personalBenchSheetId', newSheetId);
+            return newSheetId;
+        } catch (error) {
+            console.error('Error getting/creating sheet:', error);
+            throw error;
+        }
     }
 
-    // Read all prompts from the sheet
+    // Read all prompts from the sheet using Drive API export
     async getPrompts() {
         try {
-            const response = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A2:D`, // Skip header row, include ModelResponses
+            // Export the spreadsheet as CSV using Drive API
+            const response = await gapi.client.drive.files.export({
+                fileId: this.sheetId,
+                mimeType: 'text/csv'
             });
 
-            const rows = response.result.values || [];
-            return rows.map((row, index) => {
-                let responses = [];
-                try {
-                    responses = row[3] ? JSON.parse(row[3]) : [];
-                } catch (e) {
-                    console.error('Error parsing responses for row', index + 2, e);
-                    responses = [];
+            const csvText = response.body;
+            const lines = csvText.split('\n');
+
+            // Skip header row and parse CSV
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+
+                const row = this.parseCSVLine(lines[i]);
+                if (row.length > 0) {
+                    rows.push(row);
                 }
-                return {
-                    id: index + 2, // Row number (starting from 2 because of header)
-                    title: row[0] || '',
-                    content: row[1] || '',
-                    category: row[2] || '',
-                    responses: responses
-                };
-            });
+            }
+
+            return rows.map((row, index) => ({
+                rowId: index + 2, // +2 because we start at row 2 (after header)
+                title: row[0] || '',
+                content: row[1] || '',
+                category: row[2] || '',
+                responses: row[3] ? JSON.parse(row[3]) : []
+            })).filter(prompt => prompt.title || prompt.content); // Filter out empty rows
         } catch (error) {
             console.error('Error reading prompts:', error);
             throw error;
         }
     }
 
+    // Helper to parse CSV line (handles quoted fields with commas)
+    parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+                if (inQuotes && line[i + 1] === '"') {
+                    current += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current);
+        
+        return result;
+    }
+
     // Add a new prompt
     async addPrompt(title, content, category = '') {
         try {
-            const response = await gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A:D`,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: [[title, content, category, '[]']]
-                }
-            });
-            return response.result;
+            // Get current data
+            const prompts = await this.getPrompts();
+            
+            // Add new row
+            const newRow = [title, content, category, '[]'];
+            
+            // Rebuild CSV
+            await this.updateSheetData([...prompts.map(p => [
+                p.title,
+                p.content,
+                p.category,
+                JSON.stringify(p.responses)
+            ]), newRow]);
+            
+            return { success: true };
         } catch (error) {
             console.error('Error adding prompt:', error);
             throw error;
@@ -208,15 +294,26 @@ class SheetsAPI {
     // Update an existing prompt
     async updatePrompt(rowId, title, content, category = '') {
         try {
-            const response = await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A${rowId}:C${rowId}`,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: [[title, content, category]]
-                }
-            });
-            return response.result;
+            // Get current data
+            const prompts = await this.getPrompts();
+            
+            // Update the specific row (rowId is 1-indexed, starting at 2)
+            const index = rowId - 2;
+            if (index >= 0 && index < prompts.length) {
+                prompts[index].title = title;
+                prompts[index].content = content;
+                prompts[index].category = category;
+            }
+            
+            // Rebuild CSV
+            await this.updateSheetData(prompts.map(p => [
+                p.title,
+                p.content,
+                p.category,
+                JSON.stringify(p.responses)
+            ]));
+            
+            return { success: true };
         } catch (error) {
             console.error('Error updating prompt:', error);
             throw error;
@@ -226,40 +323,32 @@ class SheetsAPI {
     // Add a model response to a prompt
     async addModelResponse(rowId, modelName, response, metadata = {}) {
         try {
-            // Get current responses
-            const promptsResponse = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
-            });
-
-            let responses = [];
-            if (promptsResponse.result.values && promptsResponse.result.values[0] && promptsResponse.result.values[0][0]) {
-                try {
-                    responses = JSON.parse(promptsResponse.result.values[0][0]);
-                } catch (e) {
-                    console.error('Error parsing existing responses:', e);
-                    responses = [];
-                }
+            // Get current data
+            const prompts = await this.getPrompts();
+            
+            // Find the prompt (rowId is 1-indexed, starting at 2)
+            const index = rowId - 2;
+            if (index >= 0 && index < prompts.length) {
+                const prompt = prompts[index];
+                
+                // Add new response
+                prompt.responses.push({
+                    modelName,
+                    response,
+                    timestamp: new Date().toISOString(),
+                    metadata
+                });
             }
-
-            // Add new response
-            responses.push({
-                modelName,
-                response,
-                timestamp: new Date().toISOString(),
-                metadata
-            });
-
-            // Update the cell
-            const updateResponse = await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: [[JSON.stringify(responses)]]
-                }
-            });
-            return updateResponse.result;
+            
+            // Rebuild CSV
+            await this.updateSheetData(prompts.map(p => [
+                p.title,
+                p.content,
+                p.category,
+                JSON.stringify(p.responses)
+            ]));
+            
+            return { success: true };
         } catch (error) {
             console.error('Error adding model response:', error);
             throw error;
@@ -269,53 +358,79 @@ class SheetsAPI {
     // Delete a specific model response
     async deleteModelResponse(rowId, responseIndex) {
         try {
-            // Get current responses
-            const promptsResponse = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
-            });
-
-            let responses = [];
-            if (promptsResponse.result.values && promptsResponse.result.values[0] && promptsResponse.result.values[0][0]) {
-                try {
-                    responses = JSON.parse(promptsResponse.result.values[0][0]);
-                } catch (e) {
-                    console.error('Error parsing existing responses:', e);
-                    return;
-                }
+            // Get current data
+            const prompts = await this.getPrompts();
+            
+            // Find the prompt (rowId is 1-indexed, starting at 2)
+            const index = rowId - 2;
+            if (index >= 0 && index < prompts.length) {
+                const prompt = prompts[index];
+                
+                // Remove the response at the specified index
+                prompt.responses.splice(responseIndex, 1);
             }
-
-            // Remove the response at the specified index
-            responses.splice(responseIndex, 1);
-
-            // Update the cell
-            const updateResponse = await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!D${rowId}`,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: [[JSON.stringify(responses)]]
-                }
-            });
-            return updateResponse.result;
+            
+            // Rebuild CSV
+            await this.updateSheetData(prompts.map(p => [
+                p.title,
+                p.content,
+                p.category,
+                JSON.stringify(p.responses)
+            ]));
+            
+            return { success: true };
         } catch (error) {
             console.error('Error deleting model response:', error);
             throw error;
         }
     }
 
-    // Delete a prompt (by clearing the row)
+    // Delete a prompt (by removing the row)
     async deletePrompt(rowId) {
         try {
-            const response = await gapi.client.sheets.spreadsheets.values.clear({
-                spreadsheetId: this.sheetId,
-                range: `${CONFIG.SHEET_NAME}!A${rowId}:D${rowId}`,
-            });
-            return response.result;
+            // Get current data
+            const prompts = await this.getPrompts();
+            
+            // Remove the prompt (rowId is 1-indexed, starting at 2)
+            const index = rowId - 2;
+            if (index >= 0 && index < prompts.length) {
+                prompts.splice(index, 1);
+            }
+            
+            // Rebuild CSV
+            await this.updateSheetData(prompts.map(p => [
+                p.title,
+                p.content,
+                p.category,
+                JSON.stringify(p.responses)
+            ]));
+            
+            return { success: true };
         } catch (error) {
             console.error('Error deleting prompt:', error);
             throw error;
         }
+    }
+
+    // Helper method to update the entire sheet data
+    async updateSheetData(rows) {
+        // Build CSV content
+        let csvContent = 'Title,Content,Category,ModelResponses\n';
+        
+        for (const row of rows) {
+            const escapedRow = row.map(cell => {
+                const cellStr = String(cell || '');
+                // Escape quotes and wrap in quotes if contains comma, quote, or newline
+                if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+                    return '"' + cellStr.replace(/"/g, '""') + '"';
+                }
+                return cellStr;
+            });
+            csvContent += escapedRow.join(',') + '\n';
+        }
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        await this.uploadFileContent(this.sheetId, blob);
     }
 
     // Get the URL to the user's Google Sheet

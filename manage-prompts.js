@@ -322,5 +322,14 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', initializePage);
+// Test helper function to set prompts data
+if (window.TEST_MODE) {
+    window.setTestPrompts = function(testPrompts) {
+        prompts = testPrompts;
+    };
+}
+
+// Initialize on page load (skip in test mode)
+if (!window.TEST_MODE) {
+    window.addEventListener('DOMContentLoaded', initializePage);
+}

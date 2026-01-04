@@ -66,6 +66,29 @@ LLM API keys - Get keys from the providers you want to test:
 - Google Sheets access uses OAuth 2.0 with session-based token storage
 - Each user owns their own Google Sheet
 
+## Testing
+
+PersonalBench includes browser-based integration tests with no external dependencies required.
+
+### Running Tests
+
+1. Open `test-runner.html` in your web browser
+2. Click a button to run tests:
+   - **Run All Tests**: Execute all test suites
+   - **Run Sheets API Tests**: Test Google Sheets functionality
+   - **Run UI Tests**: Test UI helpers and DOM manipulation
+
+### Test Coverage
+
+The integration tests cover:
+- Google Sheets API data parsing and manipulation
+- Prompt rendering and management
+- UI interactions and state management
+- LocalStorage persistence
+- Error handling and security
+
+See `tests/README.md` for detailed testing documentation.
+
 ## Browser Compatibility
 
 Requires a modern browser with support for:

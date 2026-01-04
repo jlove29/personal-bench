@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Tests - PersonalBench</title>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        .test-controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #17a2b8;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        /* Hidden test DOM elements */
+        #test-dom {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 PersonalBench Integration Tests</h1>
+    
+    <div class="info">
+        <strong>ℹ️ Note:</strong> These integration tests verify the functionality of the PersonalBench application.
+        Some tests may require Google Sheets authorization. Tests run in the browser without any Node.js dependencies.
+    </div>
+    
+    <div class="test-controls">
+        <button id="run-all-tests">▶️ Run All Tests</button>
+        <button id="run-sheets-tests">📊 Run Sheets API Tests</button>
+        <button id="run-ui-tests">🎨 Run UI Tests</button>
+        <button id="clear-console">🗑️ Clear Console</button>
+        <button id="authorize-google" style="background: #4285f4; color: white;">🔐 Authorize Google (for Sheets tests)</button>
+    </div>
+    
+    <div class="warning" id="auth-warning" style="display: none;">
+        <strong>⚠️ Authorization Required:</strong> Some tests require Google Sheets authorization.
+        Please authorize when prompted.
+    </div>
+    
+    <h2>Console Output</h2>
+    <div id="console-output"></div>
+    
+    <!-- Hidden DOM for testing -->
+    <div id="test-dom">
+        <!-- Main page elements -->
+        <div id="messages"></div>
+        <div id="loading" style="display: none;"></div>
+        <div id="error-message" style="display: none;"></div>
+        <select id="api-select">
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Gemini</option>
+            <option value="claude">Claude</option>
+        </select>
+        <input type="text" id="model-input" />
+        <input type="text" id="api-key" />
+        <textarea id="prompt-input"></textarea>
+        <button id="send-btn">Send</button>
+        <select id="prompt-select"></select>
+        <div id="sheets-status"></div>
+        <button id="save-to-tracker-btn" style="display: none;">Save</button>
+        <button id="clear-btn" style="display: none;">Clear</button>
+        
+        <!-- Manage prompts page elements -->
+        <button id="authorize-btn" style="display: none;">Authorize</button>
+        <div id="main-content" style="display: none;">
+            <div id="sheet-link" style="display: none;"></div>
+            <div id="prompts-container"></div>
+        </div>
+        <div id="prompt-modal" style="display: none;">
+            <h3 id="modal-title"></h3>
+            <input type="text" id="prompt-title" />
+            <textarea id="prompt-content"></textarea>
+            <input type="text" id="prompt-category" />
+        </div>
+        <div id="response-modal" style="display: none;">
+            <h3 id="response-prompt-title"></h3>
+            <input type="text" id="response-model-name" />
+            <textarea id="response-content"></textarea>
+        </div>
+    </div>
+    
+    <!-- Load configuration and dependencies -->
+    <script src="config.js"></script>
+    
+    <!-- Set test mode flag to prevent auto-initialization -->
+    <script>
+        window.TEST_MODE = true;
+    </script>
+    
+    <!-- Load source files to be tested -->
+    <script src="sheets-api.js"></script>
+    <script src="manage-prompts.js"></script>
+    <!-- script.js uses ES6 imports and cannot be loaded directly in browser -->
+    <!-- UI helper tests will skip gracefully if functions are not available -->
+    <!-- <script src="script.js"></script> -->
+    
+    <!-- Load test framework -->
+    <script src="tests/test-helpers.js"></script>
+    
+    <!-- Load test files -->
+    <script src="tests/sheets-api.test.js"></script>
+    <script src="tests/manage-prompts.test.js"></script>
+    <script src="tests/ui-helpers.test.js"></script>
+    
+    <script>
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function appendToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : '';
+            consoleOutput.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            appendToConsole(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            appendToConsole(args.join(' '), 'error');
+        };
+        
+        // Google API initialization
+        let gapiInitialized = false;
+        
+        function initGoogleAPI() {
+            return new Promise((resolve) => {
+                gapi.load('client', async () => {
+                    try {
+                        await gapi.client.init({
+                            discoveryDocs: CONFIG.DISCOVERY_DOCS,
+                        });
+                        gapiInitialized = true;
+                        console.log('✅ Google API initialized');
+                        resolve();
+                    } catch (error) {
+                        console.error('Failed to initialize Google API:', error);
+                        resolve();
+                    }
+                });
+            });
+        }
+        
+        async function authorizeGoogle() {
+            if (!gapiInitialized) {
+                await initGoogleAPI();
+            }
+            
+            try {
+                const tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CONFIG.CLIENT_ID,
+                    scope: CONFIG.SCOPES,
+                    callback: (response) => {
+                        if (response.error) {
+                            console.error('Authorization failed:', response.error);
+                            return;
+                        }
+                        console.log('✅ Google authorization successful! You can now run Sheets API tests.');
+                    },
+                });
+                tokenClient.requestAccessToken();
+            } catch (error) {
+                console.error('Authorization error:', error);
+            }
+        }
+        
+        // Initialize Google API on load
+        window.addEventListener('load', initGoogleAPI);
+        
+        // Test runner controls
+        document.getElementById('run-all-tests').addEventListener('click', async () => {
+            document.getElementById('console-output').textContent = '';
+            const runner = new TestRunner();
+            
+            // Register all tests
+            registerSheetsAPITests(runner);
+            registerManagePromptsTests(runner);
+            registerUIHelpersTests(runner);
+            
+            await runner.run();
+        });
+        
+        document.getElementById('run-sheets-tests').addEventListener('click', async () => {
+            document.getElementById('console-output').textContent = '';
+            document.getElementById('auth-warning').style.display = 'block';
+            const runner = new TestRunner();
+            registerSheetsAPITests(runner);
+            await runner.run();
+        });
+        
+        document.getElementById('run-ui-tests').addEventListener('click', async () => {
+            document.getElementById('console-output').textContent = '';
+            const runner = new TestRunner();
+            registerManagePromptsTests(runner);
+            registerUIHelpersTests(runner);
+            await runner.run();
+        });
+        
+        document.getElementById('clear-console').addEventListener('click', () => {
+            document.getElementById('console-output').textContent = '';
+        });
+        
+        document.getElementById('authorize-google').addEventListener('click', authorizeGoogle);
+        
+        // Initial message
+        console.log('Test runner loaded. Click a button to run tests.');
+        console.log('💡 Tip: Click "Authorize Google" to enable Sheets API tests.');
+    </script>
+</body>
+</html>

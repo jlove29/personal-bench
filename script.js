@@ -421,3 +421,40 @@ function handleClearMessages() {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', init);
+
+// Expose functions globally for testing
+if (window.TEST_MODE) {
+    window.loadPrompts = loadPrompts;
+    window.handleSaveToTracker = handleSaveToTracker;
+    
+    // Expose lastPrompt and lastResponse as getters/setters
+    Object.defineProperty(window, 'lastPrompt', {
+        get: () => lastPrompt,
+        set: (value) => { lastPrompt = value; }
+    });
+    Object.defineProperty(window, 'lastResponse', {
+        get: () => lastResponse,
+        set: (value) => { lastResponse = value; }
+    });
+    
+    // Test-friendly wrappers that get DOM elements dynamically
+    window.saveApiKey = function() {
+        const apiSelectEl = document.getElementById('api-select');
+        const apiKeyInputEl = document.getElementById('api-key');
+        if (apiSelectEl && apiKeyInputEl) {
+            const selectedApi = apiSelectEl.value;
+            const key = apiKeyInputEl.value;
+            localStorage.setItem(`apiKey_${selectedApi}`, key);
+        }
+    };
+    
+    window.loadApiKey = function() {
+        const apiSelectEl = document.getElementById('api-select');
+        const apiKeyInputEl = document.getElementById('api-key');
+        if (apiSelectEl && apiKeyInputEl) {
+            const selectedApi = apiSelectEl.value;
+            const savedKey = localStorage.getItem(`apiKey_${selectedApi}`) || '';
+            apiKeyInputEl.value = savedKey;
+        }
+    };
+}

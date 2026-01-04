@@ -1,0 +1,16 @@
+{
+  "name": "personal_bench",
+  "version": "1.0.0",
+  "description": "A personal benchmark tool for testing AI models with your favorite prompts",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "keywords": ["ai", "testing", "prompts", "benchmarking"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}

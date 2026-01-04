@@ -28,7 +28,11 @@
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
                 </a>
-                <button class="config-toggle-btn" onclick="toggleConfig()" title="Toggle Configuration">⚙️</button>
+                <button class="config-toggle-btn" onclick="toggleConfig()" title="Toggle Configuration">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
             </div>
 
             <div class="form-group model-field-always-visible">
@@ -100,7 +104,9 @@
     <script>
         function toggleConfig() {
             const configFields = document.querySelector('.config-fields');
+            const toggleBtn = document.querySelector('.config-toggle-btn');
             configFields.classList.toggle('expanded');
+            toggleBtn.classList.toggle('expanded');
         }
     </script>
     <script type="module" src="script.js"></script>

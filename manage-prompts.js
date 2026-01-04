@@ -47,7 +47,7 @@ async function initializePage() {
         // Show link to the Google Sheet
         const sheetUrl = sheetsAPI.getSheetUrl();
         const sheetLinkDiv = document.getElementById('sheet-link');
-        sheetLinkDiv.innerHTML = `<a href="${sheetUrl}" target="_blank" class="sheet-link">📊 Open in Google Sheets</a>`;
+        sheetLinkDiv.innerHTML = `<a href="${sheetUrl}" target="_blank" class="sheet-link">Open in Google Sheets</a>`;
         sheetLinkDiv.style.display = 'block';
 
         // Load prompts

@@ -119,9 +119,9 @@ header h1 {
     width: 36px;
     height: 36px;
     padding: 6px;
-    background: #1a1a1a;
-    color: #fff;
-    border: 2px solid #1a1a1a;
+    background: transparent;
+    color: inherit;
+    border: none;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
@@ -132,8 +132,14 @@ header h1 {
 }
 
 .config-toggle-btn:hover {
-    background: #fff;
-    color: #1a1a1a;
+    background: #1a1a1a;
+    color: white;
+    transform: translate(2px, 2px);
+    box-shadow: none;
+}
+
+.config-toggle-btn.expanded svg {
+    transform: rotate(180deg);
 }
 
 .form-group {

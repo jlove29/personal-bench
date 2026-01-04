@@ -3,10 +3,28 @@
 function registerCoreE2ETests(runner) {
     runner.describe('E2E: Core Chat Functionality', () => {
 
-        runner.it('E2E: First-Time User Setup - should save API key and model to localStorage', () => {
-            // Clear localStorage first
+        runner.beforeEach(() => {
+            // Clear storage to prevent API key/model/OAuth state from leaking between tests
             localStorage.clear();
-            
+            sessionStorage.clear();
+
+            // Clear messages container to prevent test pollution
+            const messagesContainer = document.getElementById('messages');
+            if (messagesContainer) {
+                messagesContainer.innerHTML = '';
+            }
+        });
+
+        runner.afterEach(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // Reset global state used by script.js
+            window.lastPrompt = '';
+            window.lastResponse = '';
+        });
+
+        runner.it('E2E: First-Time User Setup - should save API key and model to localStorage', () => {
             const apiSelect = document.getElementById('api-select');
             const apiKeyInput = document.getElementById('api-key');
             
@@ -29,9 +47,6 @@ function registerCoreE2ETests(runner) {
             } else {
                 console.log('   ⚠️  Skipping - Required elements or functions not available');
             }
-            
-            // Cleanup
-            localStorage.clear();
         });
 
         runner.it('E2E: Send Prompt and Get Response - should show loading, display message, and enable save button', async () => {
@@ -117,9 +132,6 @@ function registerCoreE2ETests(runner) {
                 
                 assert.equals(apiKeyInput.value, 'gemini-api-key');
                 assert.equals(modelInput.value, 'gemini-pro');
-                
-                // Cleanup
-                localStorage.clear();
             }
         });
 
@@ -174,9 +186,6 @@ function registerCoreE2ETests(runner) {
                 loadModel();
                 assert.equals(apiKeyInput.value, 'claude-key-789');
                 assert.equals(modelInput.value, 'claude-3-opus');
-                
-                // Cleanup
-                localStorage.clear();
             }
         });
 

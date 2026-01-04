@@ -3,6 +3,8 @@
 class TestRunner {
     constructor() {
         this.tests = [];
+        this.beforeEachHooks = [];
+        this.afterEachHooks = [];
         this.results = {
             passed: 0,
             failed: 0,
@@ -12,20 +14,41 @@ class TestRunner {
 
     describe(suiteName, testFn) {
         console.log(`\n📋 ${suiteName}`);
+        // Clear hooks for next suite (does not affect already-registered tests)
+        this.beforeEachHooks = [];
+        this.afterEachHooks = [];
         testFn();
     }
 
+    beforeEach(hookFn) {
+        this.beforeEachHooks.push(hookFn);
+    }
+
+    afterEach(hookFn) {
+        this.afterEachHooks.push(hookFn);
+    }
+
     it(testName, testFn) {
-        this.tests.push({ name: testName, fn: testFn });
+        this.tests.push({
+            name: testName,
+            fn: testFn,
+            beforeEachHooks: [...this.beforeEachHooks],
+            afterEachHooks: [...this.afterEachHooks]
+        });
     }
 
     async run() {
         console.log('🚀 Starting tests...\n');
-        
+
         for (const test of this.tests) {
             this.results.total++;
             try {
+                for (const hook of test.beforeEachHooks) {
+                    await hook();
+                }
+
                 await test.fn();
+
                 this.results.passed++;
                 console.log(`  ✅ ${test.name}`);
             } catch (error) {
@@ -34,6 +57,15 @@ class TestRunner {
                 console.error(`     Error: ${error.message}`);
                 if (error.stack) {
                     console.error(`     ${error.stack.split('\n').slice(1, 3).join('\n     ')}`);
+                }
+            } finally {
+                // Always run afterEach for cleanup, even if test failed
+                for (const hook of test.afterEachHooks) {
+                    try {
+                        await hook();
+                    } catch (hookError) {
+                        console.error(`     afterEach hook error: ${hookError.message}`);
+                    }
                 }
             }
         }
